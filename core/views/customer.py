@@ -32,7 +32,7 @@ def customer_detail(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
     return render(request, 'customer/customer_detail.html', {
         'customer': customer,
-        'title': f'Customer: {customer.company_name}'
+        'title': f'Customer: {customer.company_name or "No Company"}'
     })
 
 def new_customer(request):
@@ -42,7 +42,7 @@ def new_customer(request):
             customer = form.save()
             messages.success(
                 request, 
-                f'Customer {customer.company_name} was successfully created!'
+                f'Customer {customer.company_name or "created"} was successfully created!'
             )
             return redirect('customer_detail', customer_id=customer.id)
     else:
@@ -66,7 +66,7 @@ def edit_customer(request, customer_id):
     
     return render(request, 'customer/customer_form.html', {
         'form': form,
-        'title': f'Edit Customer: {customer.company_name}',
+        'title': f'Edit Customer: {customer.company_name or "No Company"}',
         'is_edit': True
     })
 
@@ -79,7 +79,7 @@ def delete_customer(request, customer_id):
     
     return render(request, 'customer/customer_confirm_delete.html', {
         'customer': customer,
-        'title': f'Delete Customer: {customer.company_name}'
+        'title': f'Delete Customer: {customer.company_name or "No Company"}'
     })
 
 def customer_search(request):
@@ -163,7 +163,7 @@ def customer_defaults(request, customer_id):
         'customer': customer,
         'door_form': door_form,
         'drawer_form': drawer_form,
-        'title': f'Defaults for {customer.company_name.title()}',
+        'title': f'Defaults for {customer.company_name.title() if customer.company_name else "No Company"}',
         'global_rail_defaults': door_defaults_service.global_defaults
     }
     

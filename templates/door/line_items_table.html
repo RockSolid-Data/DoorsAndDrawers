@@ -59,7 +59,6 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {% if item.type == 'drawer' %}
                         <span class="inline-block">
-                            Edge: {{ item.edge_type.name|default:"Unknown" }}<br>
                             Bottom: {{ item.bottom.name|default:"Unknown" }}
                         </span>
                     {% elif item.type == 'door' %}

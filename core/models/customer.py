@@ -1,20 +1,25 @@
 from django.db import models
 from .base import BaseModel
 from ..utils import get_us_states
-from django.core.validators import RegexValidator
 
 class Customer(BaseModel):
     company_name = models.CharField(
         max_length=255,
-        verbose_name="Company Name"
+        verbose_name="Company Name",
+        blank=True,
+        null=True
     )
     first_name = models.CharField(
         max_length=255,
-        verbose_name="First Name"
+        verbose_name="First Name",
+        blank=True,
+        null=True
     )
     last_name = models.CharField(
         max_length=255,
-        verbose_name="Last Name"
+        verbose_name="Last Name",
+        blank=True,
+        null=True
     )
     taxable = models.BooleanField(
         default=False,
@@ -23,39 +28,50 @@ class Customer(BaseModel):
     )
     address_line1 = models.CharField(
         max_length=255,
-        verbose_name="Address Line 1"
+        verbose_name="Address Line 1",
+        blank=True,
+        null=True
     )
     address_line2 = models.CharField(
         max_length=255,
         verbose_name="Address Line 2",
-        blank=True
+        blank=True,
+        null=True
     )
     city = models.CharField(
         max_length=255,
-        verbose_name="City"
+        verbose_name="City",
+        blank=True,
+        null=True
     )
     state = models.CharField(
         max_length=2,
         choices=get_us_states(),
-        verbose_name="State"
+        verbose_name="State",
+        blank=True,
+        null=True
     )
     zip_code = models.CharField(
         max_length=5,
-        validators=[RegexValidator(r'^[0-9]{5}$', 'Enter a valid 5-digit ZIP code')],
-        verbose_name="ZIP Code"
+        verbose_name="ZIP Code",
+        blank=True,
+        null=True
     )
     phone = models.CharField(
         max_length=10,
-        validators=[RegexValidator(r'^[0-9]{10}$', 'Enter a valid 10-digit phone number')],
-        verbose_name="Phone Number"
+        verbose_name="Phone Number",
+        blank=True,
+        null=True
     )
     fax = models.CharField(
         max_length=10,
-        validators=[RegexValidator(r'^[0-9]{10}$', 'Enter a valid 10-digit fax number')],
-        verbose_name="Fax Number"
+        verbose_name="Fax Number",
+        blank=True,
+        null=True
     )
     notes = models.TextField(
         blank=True,
+        null=True,
         verbose_name="Notes"
     )
     
@@ -77,7 +93,11 @@ class Customer(BaseModel):
         verbose_name_plural = "Customers"
 
     def __str__(self):
-        return f"{self.company_name.title()} - {self.first_name.capitalize()} {self.last_name.capitalize()}"
+        company = self.company_name.title() if self.company_name else "No Company"
+        first = self.first_name.capitalize() if self.first_name else ""
+        last = self.last_name.capitalize() if self.last_name else ""
+        name = f"{first} {last}".strip() if first or last else "No Name"
+        return f"{company} - {name}"
 
     @property
     def quotes(self):
@@ -90,20 +110,29 @@ class Customer(BaseModel):
         return self.orders.filter(is_quote=False)
 
     def save(self, *args, **kwargs):
-        # Convert names to lowercase
-        self.company_name = self.company_name.lower()
-        self.first_name = self.first_name.lower()
-        self.last_name = self.last_name.lower()
-        self.city = self.city.lower()
-        self.address_line1 = self.address_line1.lower()
-        self.address_line2 = self.address_line2.lower()
-        self.notes = self.notes.lower()
+        # Convert names to lowercase if they exist
+        if self.company_name:
+            self.company_name = self.company_name.lower()
+        if self.first_name:
+            self.first_name = self.first_name.lower()
+        if self.last_name:
+            self.last_name = self.last_name.lower()
+        if self.city:
+            self.city = self.city.lower()
+        if self.address_line1:
+            self.address_line1 = self.address_line1.lower()
+        if self.address_line2:
+            self.address_line2 = self.address_line2.lower()
+        if self.notes:
+            self.notes = self.notes.lower()
 
-        # Strip any formatting from phone/fax
-        if not self.phone.isdigit():
-            self.phone = ''.join(filter(str.isdigit, self.phone))
-        if not self.fax.isdigit():
-            self.fax = ''.join(filter(str.isdigit, self.fax))
+        # Strip any formatting from phone/fax if they exist
+        if self.phone:
+            if not self.phone.isdigit():
+                self.phone = ''.join(filter(str.isdigit, self.phone))
+        if self.fax:
+            if not self.fax.isdigit():
+                self.fax = ''.join(filter(str.isdigit, self.fax))
         super().save(*args, **kwargs)
     
     def get_door_defaults(self):

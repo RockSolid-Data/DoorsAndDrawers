@@ -44,37 +44,6 @@
             </table>
         </div>
     </div>
-    
-    <div class="bg-white rounded-lg shadow-md p-8 mb-8">
-        <h2 class="text-xl font-semibold mb-6">Edge Type Options</h2>
-        
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Edge Type
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Actions
-                        </th>
-                    </tr>
-                </thead>
-                <tbody id="drawer-edge-types-tbody" class="bg-white divide-y divide-gray-200">
-                    {% for edge in edge_types %}
-                    {% include 'settings/partials/drawer_edgetype_row_display.html' with edge=edge %}
-                    {% empty %}
-                    <tr>
-                        <td colspan="2" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                            No drawer edge type options available
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    {% include 'settings/partials/drawer_edgetype_add_button.html' %}
-                </tbody>
-            </table>
-        </div>
-    </div>
 
     <div class="bg-white rounded-lg shadow-md p-8 mb-8">
         <h2 class="text-xl font-semibold mb-6">Bottom Size Options</h2>

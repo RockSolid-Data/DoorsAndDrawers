@@ -31,7 +31,7 @@ def quote_detail(request, quote_id):
 
     # Get all drawer line items related to this quote
     drawer_items = quote.drawer_items.all().select_related(
-        'wood_stock', 'edge_type', 'bottom'
+        'wood_stock', 'bottom'
     )
 
     # Get all generic line items related to this quote
@@ -158,7 +158,7 @@ def generate_quote_pdf(request, quote_id):
 
     # Get all drawer line items related to this quote
     drawer_items = quote.drawer_items.all().select_related(
-        'wood_stock', 'edge_type', 'bottom'
+        'wood_stock', 'bottom'
     )
 
     # Get all generic line items related to this quote

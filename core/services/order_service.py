@@ -228,7 +228,6 @@ class OrderService:
         drawer_item = DrawerLineItem(
             order=order,
             wood_stock_id=item_data['wood_stock']['id'],
-            edge_type_id=item_data['edge_type']['id'],
             bottom_id=item_data['bottom']['id'],
             width=width,
             height=height,

@@ -36,7 +36,7 @@ def order_detail(request, order_id):
 
     # Get all drawer line items related to this order
     drawer_items = order.drawer_items.all().select_related(
-        'wood_stock', 'edge_type', 'bottom'
+        'wood_stock', 'bottom'
     )
 
     # Get all generic line items related to this order
@@ -285,7 +285,7 @@ def generate_order_pdf(request, order_id):
 
     # Get all drawer line items related to this order
     drawer_items = order.drawer_items.all().select_related(
-        'wood_stock', 'edge_type', 'bottom'
+        'wood_stock', 'bottom'
     )
 
     # Get all generic line items related to this order

@@ -21,17 +21,6 @@ class DrawerWoodStock(BaseModel):
         verbose_name = 'Drawer Wood Stock'
         verbose_name_plural = 'Drawer Wood Stocks'
 
-class DrawerEdgeType(BaseModel):
-    """Edge types for drawers"""
-    name = models.CharField(max_length=100, unique=True)
-    def __str__(self):
-        return self.name
-    
-    class Meta:
-        ordering = ['name']
-        verbose_name = 'Drawer Edge Type'
-        verbose_name_plural = 'Drawer Edge Types'
-
 class DrawerBottomSize(BaseModel):
     """Bottom material types for drawers"""
     name = models.CharField(max_length=100, unique=True)
@@ -108,11 +97,6 @@ class DrawerLineItem(LineItem):
     # Materials
     wood_stock = models.ForeignKey(
         DrawerWoodStock,
-        on_delete=models.PROTECT,
-        related_name='drawer_items'
-    )
-    edge_type = models.ForeignKey(
-        DrawerEdgeType,
         on_delete=models.PROTECT,
         related_name='drawer_items'
     )

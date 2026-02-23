@@ -36,17 +36,15 @@ def drawer_settings(request):
     """
     Render the drawer settings page with all drawer components
     """
-    from ..models.drawer import DrawerWoodStock, DrawerEdgeType, DrawerBottomSize, DrawerPricing, DefaultDrawerSettings
+    from ..models.drawer import DrawerWoodStock, DrawerBottomSize, DrawerPricing, DefaultDrawerSettings
     
     wood_stocks = DrawerWoodStock.objects.all()
-    edge_types = DrawerEdgeType.objects.all()
     bottom_sizes = DrawerBottomSize.objects.all()
     pricing = DrawerPricing.objects.all()
     drawer_defaults = DefaultDrawerSettings.objects.first()
     
     context = {
         'wood_stocks': wood_stocks,
-        'edge_types': edge_types,
         'bottom_sizes': bottom_sizes,
         'pricing': pricing,
         'drawer_defaults': drawer_defaults,
@@ -173,111 +171,6 @@ def add_drawer_woodstock(request):
         
         # Add the "add button" row at the end
         html += render_to_string('settings/partials/drawer_woodstock_add_button.html', {}, request)
-        
-        return HttpResponse(html)
-    
-    # If not POST request, redirect to drawer settings
-    return redirect('drawer_settings')
-
-# Drawer Edge Type editing views
-def edit_drawer_edgetype(request, edge_id):
-    """
-    Switch a drawer edge type row to edit mode
-    """
-    from ..models.drawer import DrawerEdgeType
-    edge = get_object_or_404(DrawerEdgeType, id=edge_id)
-    
-    context = {
-        'edge': edge,
-    }
-    
-    return render(request, 'settings/partials/drawer_edgetype_row_edit.html', context)
-
-def get_drawer_edgetype(request, edge_id):
-    """
-    Return a drawer edge type row in display mode (for cancel button)
-    """
-    from ..models.drawer import DrawerEdgeType
-    edge = get_object_or_404(DrawerEdgeType, id=edge_id)
-    
-    return render(request, 'settings/partials/drawer_edgetype_row_display.html', {'edge': edge})
-
-def update_drawer_edgetype(request, edge_id):
-    """
-    Process the form submission and update the drawer edge type
-    """
-    from ..models.drawer import DrawerEdgeType
-    from django.core.exceptions import ValidationError
-    
-    edge = get_object_or_404(DrawerEdgeType, id=edge_id)
-    
-    if request.method == 'POST':
-        # Update the edge type with form data
-        edge.name = request.POST.get('name')
-        
-        try:
-            edge.full_clean()  # Validate the model
-            edge.save()
-        except ValidationError as e:
-            # Return the edit form with error messages
-            context = {
-                'edge': edge,
-                'errors': e.message_dict
-            }
-            return render(request, 'settings/partials/drawer_edgetype_row_edit.html', context, status=422)
-        
-        # Return the updated row in display mode
-        return render(request, 'settings/partials/drawer_edgetype_row_display.html', {'edge': edge})
-    
-    # If not POST request, redirect to drawer settings
-    return redirect('drawer_settings')
-
-# Drawer Edge Type add functions
-def show_drawer_edgetype_add(request):
-    """
-    Show the form for adding a new drawer edge type
-    """
-    return render(request, 'settings/partials/drawer_edgetype_row_add.html')
-
-def cancel_drawer_edgetype_add(request):
-    """
-    Cancel adding a new drawer edge type and return to the button view
-    """
-    return render(request, 'settings/partials/drawer_edgetype_add_button.html')
-
-def add_drawer_edgetype(request):
-    """
-    Process the form submission and add a new drawer edge type
-    """
-    from ..models.drawer import DrawerEdgeType
-    from django.core.exceptions import ValidationError
-    
-    if request.method == 'POST':
-        # Create a new edge type object
-        edge = DrawerEdgeType()
-        edge.name = request.POST.get('name')
-        
-        try:
-            edge.full_clean()  # Validate the model
-            edge.save()
-        except ValidationError as e:
-            # Return the add form with error messages
-            context = {
-                'errors': e.message_dict
-            }
-            return render(request, 'settings/partials/drawer_edgetype_row_add.html', context, status=422)
-        
-        # Get all edge types to refresh the list
-        from ..models.drawer import DrawerEdgeType
-        edge_types = DrawerEdgeType.objects.all()
-        
-        # Render all rows including add button
-        html = ""
-        for edge_item in edge_types:
-            html += render_to_string('settings/partials/drawer_edgetype_row_display.html', {'edge': edge_item}, request)
-        
-        # Add the "add button" row at the end
-        html += render_to_string('settings/partials/drawer_edgetype_add_button.html', {}, request)
         
         return HttpResponse(html)
     
@@ -1465,4 +1358,227 @@ def update_misc_settings(request):
         return render(request, 'settings/partials/misc_settings_row_display.html', {'settings': settings})
     
     # If not POST request, redirect to door settings
-    return redirect('door_settings') 
+    return redirect('door_settings')
+
+# Delete views for Door Settings
+
+def delete_door_style(request, style_id):
+    """
+    Delete a door style and return updated table body
+    """
+    style = get_object_or_404(Style, id=style_id)
+    
+    if request.method == 'DELETE':
+        style.delete()
+        
+        # Get all remaining styles to refresh the list
+        styles = Style.objects.all().select_related('panel_type', 'design')
+        
+        # Render all rows including add button
+        html = ""
+        for style_item in styles:
+            html += render_to_string('settings/partials/style_row_display.html', {'style': style_item}, request)
+        
+        # Add the "add button" row at the end
+        html += render_to_string('settings/partials/style_add_button.html', {}, request)
+        
+        return HttpResponse(html)
+    
+    return redirect('door_settings')
+
+def delete_wood_stock(request, stock_id):
+    """
+    Delete a wood stock and return updated table body
+    """
+    wood = get_object_or_404(WoodStock, id=stock_id)
+    
+    if request.method == 'DELETE':
+        wood.delete()
+        
+        # Get all remaining wood stocks to refresh the list
+        wood_stocks = WoodStock.objects.all()
+        
+        # Render all rows including add button
+        html = ""
+        for wood_item in wood_stocks:
+            html += render_to_string('settings/partials/wood_stock_row_display.html', {'wood': wood_item}, request)
+        
+        # Add the "add button" row at the end
+        html += render_to_string('settings/partials/wood_stock_add_button.html', {}, request)
+        
+        return HttpResponse(html)
+    
+    return redirect('door_settings')
+
+def delete_door_design(request, design_id):
+    """
+    Delete a door design and return updated table body
+    """
+    design = get_object_or_404(Design, id=design_id)
+    
+    if request.method == 'DELETE':
+        design.delete()
+        
+        # Get all remaining designs to refresh the list
+        designs = Design.objects.all().order_by('name')
+        
+        # Render all rows including add button
+        html = ""
+        for design_item in designs:
+            html += render_to_string('settings/partials/design_row_display.html', {'design': design_item}, request)
+        
+        # Add the "add button" row at the end
+        html += render_to_string('settings/partials/door_design_add_button.html', {}, request)
+        
+        return HttpResponse(html)
+    
+    return redirect('door_settings')
+
+def delete_edge_profile(request, profile_id):
+    """
+    Delete an edge profile and return updated table body
+    """
+    profile = get_object_or_404(EdgeProfile, id=profile_id)
+    
+    if request.method == 'DELETE':
+        profile.delete()
+        
+        # Get all remaining edge profiles to refresh the list
+        profiles = EdgeProfile.objects.all().order_by('name')
+        
+        # Render all rows including add button
+        html = ""
+        for profile_item in profiles:
+            html += render_to_string('settings/partials/edge_profile_row_display.html', {'profile': profile_item}, request)
+        
+        # Add the "add button" row at the end
+        html += render_to_string('settings/partials/edge_profile_add_button.html', {}, request)
+        
+        return HttpResponse(html)
+    
+    return redirect('door_settings')
+
+def delete_panel_rise(request, rise_id):
+    """
+    Delete a panel rise and return updated table body
+    """
+    rise = get_object_or_404(PanelRise, id=rise_id)
+    
+    if request.method == 'DELETE':
+        rise.delete()
+        
+        # Get all remaining panel rises to refresh the list
+        rises = PanelRise.objects.all().order_by('name')
+        
+        # Render all rows including add button
+        html = ""
+        for rise_item in rises:
+            html += render_to_string('settings/partials/panel_rise_row_display.html', {'rise': rise_item}, request)
+        
+        # Add the "add button" row at the end
+        html += render_to_string('settings/partials/panel_rise_add_button.html', {}, request)
+        
+        return HttpResponse(html)
+    
+    return redirect('door_settings')
+
+def delete_panel_type(request, type_id):
+    """
+    Delete a panel type and return updated table body
+    """
+    panel_type = get_object_or_404(PanelType, id=type_id)
+    
+    if request.method == 'DELETE':
+        panel_type.delete()
+        
+        # Get all remaining panel types to refresh the list
+        panel_types = PanelType.objects.all().order_by('name')
+        
+        # Render all rows including add button
+        html = ""
+        for panel_type_item in panel_types:
+            html += render_to_string('settings/partials/panel_type_row_display.html', {'type': panel_type_item}, request)
+        
+        # Add the "add button" row at the end
+        html += render_to_string('settings/partials/panel_type_add_button.html', {}, request)
+        
+        return HttpResponse(html)
+    
+    return redirect('door_settings')
+
+# Delete views for Drawer Settings
+
+def delete_drawer_woodstock(request, stock_id):
+    """
+    Delete a drawer wood stock and return updated table body
+    """
+    from ..models.drawer import DrawerWoodStock
+    wood = get_object_or_404(DrawerWoodStock, id=stock_id)
+    
+    if request.method == 'DELETE':
+        wood.delete()
+        
+        # Get all remaining wood stocks to refresh the list
+        wood_stocks = DrawerWoodStock.objects.all()
+        
+        # Render all rows including add button
+        html = ""
+        for wood_item in wood_stocks:
+            html += render_to_string('settings/partials/drawer_woodstock_row_display.html', {'wood': wood_item}, request)
+        
+        # Add the "add button" row at the end
+        html += render_to_string('settings/partials/drawer_woodstock_add_button.html', {}, request)
+        
+        return HttpResponse(html)
+    
+    return redirect('drawer_settings')
+
+def delete_drawer_bottom(request, bottom_id):
+    """
+    Delete a drawer bottom size and return updated table body
+    """
+    from ..models.drawer import DrawerBottomSize
+    bottom = get_object_or_404(DrawerBottomSize, id=bottom_id)
+    
+    if request.method == 'DELETE':
+        bottom.delete()
+        
+        # Get all remaining bottom sizes to refresh the list
+        bottom_sizes = DrawerBottomSize.objects.all()
+        
+        # Render all rows including add button
+        html = ""
+        for bottom_item in bottom_sizes:
+            html += render_to_string('settings/partials/drawer_bottom_row_display.html', {'bottom': bottom_item}, request)
+        
+        # Add the "add button" row at the end
+        html += render_to_string('settings/partials/drawer_bottom_add_button.html', {}, request)
+        
+        return HttpResponse(html)
+    
+    return redirect('drawer_settings')
+
+def delete_drawer_pricing(request, pricing_id):
+    """
+    Delete a drawer pricing configuration and return updated table body
+    """
+    from ..models.drawer import DrawerPricing
+    pricing = get_object_or_404(DrawerPricing, id=pricing_id)
+    
+    if request.method == 'DELETE':
+        pricing.delete()
+        
+        # Get all remaining pricing configs to refresh the list
+        pricing_configs = DrawerPricing.objects.all()
+        
+        # Render all rows including add button
+        html = ""
+        for pricing_item in pricing_configs:
+            html += render_to_string('settings/partials/drawer_pricing_row_display.html', {'pricing': pricing_item}, request)
+        
+        # Add the "add button" row at the end
+        html += render_to_string('settings/partials/drawer_pricing_add_button.html', {}, request)
+        
+        return HttpResponse(html)
+    
+    return redirect('drawer_settings') 

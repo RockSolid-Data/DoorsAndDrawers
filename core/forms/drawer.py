@@ -12,7 +12,6 @@ class DrawerForm(forms.ModelForm):
             'height', 
             'depth', 
             'wood_stock', 
-            'edge_type', 
             'bottom',
             'undermount',
             'finishing'

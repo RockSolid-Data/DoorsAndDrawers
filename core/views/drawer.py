@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
-from ..models.drawer import DrawerLineItem, DrawerWoodStock, DrawerEdgeType, DrawerBottomSize
+from ..models.drawer import DrawerLineItem, DrawerWoodStock, DrawerBottomSize
 from ..forms import DrawerForm
 from .common import process_line_item_form
 from .door import get_current_customer
@@ -8,7 +8,6 @@ from .door import get_current_customer
 def drawer_form(request):
     """Render the drawer form partial template."""
     wood_stocks = DrawerWoodStock.objects.all()
-    edge_types = DrawerEdgeType.objects.all()
     bottom_sizes = DrawerBottomSize.objects.all()
     
     # Initial data for the form
@@ -30,14 +29,6 @@ def drawer_form(request):
             except (DrawerWoodStock.DoesNotExist, ValueError, TypeError):
                 pass
                 
-        if 'edge_type' in drawer_defaults:
-            try:
-                edge_type_id = drawer_defaults['edge_type']
-                if isinstance(edge_type_id, (int, str)):  # Ensure we have an ID
-                    initial_data['edge_type'] = DrawerEdgeType.objects.get(pk=edge_type_id)
-            except (DrawerEdgeType.DoesNotExist, ValueError, TypeError):
-                pass
-                
         if 'bottom' in drawer_defaults:
             try:
                 bottom_id = drawer_defaults['bottom']
@@ -57,7 +48,6 @@ def drawer_form(request):
     context = {
         'form': form,
         'wood_stocks': wood_stocks,
-        'edge_types': edge_types,
         'bottom_sizes': bottom_sizes,
     }
     
@@ -68,7 +58,6 @@ def transform_drawer_data(request, cleaned_data, drawer_model, item_type, custom
     return {
         'type': item_type,
         'wood_stock': {'id': cleaned_data['wood_stock'].pk, 'name': cleaned_data['wood_stock'].name},
-        'edge_type': {'id': cleaned_data['edge_type'].pk, 'name': cleaned_data['edge_type'].name},
         'bottom': {'id': cleaned_data['bottom'].pk, 'name': cleaned_data['bottom'].name},
         'width': str(cleaned_data['width']),
         'height': str(cleaned_data['height']),

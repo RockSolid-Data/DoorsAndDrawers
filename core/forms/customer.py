@@ -1,7 +1,8 @@
 from django import forms
 from ..models.customer import Customer, CustomerDefaults
 from ..models.door import WoodStock, EdgeProfile, PanelRise, Style
-from ..models.drawer import DrawerWoodStock, DrawerEdgeType, DrawerBottomSize
+from ..models.drawer import DrawerWoodStock, DrawerBottomSize
+from ..utils import get_us_states
 
 class PhoneNumberWidget(forms.TextInput):
     def value_from_datadict(self, data, files, name):
@@ -75,10 +76,18 @@ class CustomerForm(forms.ModelForm):
             'address_line2': forms.TextInput(attrs={'placeholder': 'Apartment, suite, unit, building, floor, etc.'}),
             'phone': PhoneNumberWidget(),
             'fax': PhoneNumberWidget(),
+            'state': forms.Select(attrs={'class': 'form-select'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Make all fields optional
+        for field_name in self.fields:
+            self.fields[field_name].required = False
+        
+        # Set a friendly placeholder for the state dropdown
+        self.fields['state'].choices = [('', 'Select a state...')] + list(get_us_states())
+        
         if self.instance.pk:
             try:
                 defaults = self.instance.defaults
@@ -91,12 +100,39 @@ class CustomerForm(forms.ModelForm):
             except CustomerDefaults.DoesNotExist:
                 pass
 
+    def clean_zip_code(self):
+        zip_code = self.cleaned_data.get('zip_code')
+        if zip_code:
+            from django.core.validators import RegexValidator
+            validator = RegexValidator(r'^[0-9]{5}$', 'Enter a valid 5-digit ZIP code')
+            validator(zip_code)
+        return zip_code
+
+    def clean_phone(self):
+        phone = self.cleaned_data.get('phone')
+        if phone:
+            from django.core.validators import RegexValidator
+            validator = RegexValidator(r'^[0-9]{10}$', 'Enter a valid 10-digit phone number')
+            validator(phone)
+        return phone
+
+    def clean_fax(self):
+        fax = self.cleaned_data.get('fax')
+        if fax:
+            from django.core.validators import RegexValidator
+            validator = RegexValidator(r'^[0-9]{10}$', 'Enter a valid 10-digit fax number')
+            validator(fax)
+        return fax
+
     def clean(self):
         cleaned_data = super().clean()
-        # Convert names to lowercase
-        cleaned_data['company_name'] = cleaned_data.get('company_name', '').lower()
-        cleaned_data['first_name'] = cleaned_data.get('first_name', '').lower()
-        cleaned_data['last_name'] = cleaned_data.get('last_name', '').lower()
+        # Convert names to lowercase if they exist
+        if cleaned_data.get('company_name'):
+            cleaned_data['company_name'] = cleaned_data['company_name'].lower()
+        if cleaned_data.get('first_name'):
+            cleaned_data['first_name'] = cleaned_data['first_name'].lower()
+        if cleaned_data.get('last_name'):
+            cleaned_data['last_name'] = cleaned_data['last_name'].lower()
 
         # Validate percentage values
         if cleaned_data.get('discount_type') == 'PERCENT' and cleaned_data.get('discount_value', 0) > 100:
@@ -201,11 +237,6 @@ class CustomerDrawerDefaultsForm(forms.Form):
         queryset=DrawerWoodStock.objects.all(),
         required=False,
         label="Default Wood Stock"
-    )
-    edge_type = forms.ModelChoiceField(
-        queryset=DrawerEdgeType.objects.all(),
-        required=False,
-        label="Default Edge Type"
     )
     bottom = forms.ModelChoiceField(
         queryset=DrawerBottomSize.objects.all(),

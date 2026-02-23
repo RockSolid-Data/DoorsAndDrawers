@@ -15,7 +15,7 @@ django.setup()
 
 # Import after Django setup
 from core.models.drawer import (
-    DefaultDrawerSettings, DrawerWoodStock, DrawerEdgeType, 
+    DefaultDrawerSettings, DrawerWoodStock, 
     DrawerBottomSize, DrawerPricing
 )
 from core.models.door import (
@@ -73,29 +73,6 @@ def create_drawer_wood_stock_defaults():
         print(f"Created drawer wood stock: {stock.name} - ${stock.price}")
 
     return created_stocks
-
-
-def create_drawer_edge_type_defaults():
-    """Create default edge types for drawers if they don't exist."""
-    if DrawerEdgeType.objects.exists():
-        print("Drawer edge types already exist. Skipping creation.")
-        return DrawerEdgeType.objects.all()
-
-    # Create common drawer edge types
-    edge_types = [
-        {"name": "Square Edge"},
-        {"name": "Rounded Edge"},
-        {"name": "Beveled Edge"},
-        {"name": "Bullnose Edge"},
-    ]
-
-    created_edges = []
-    for edge_data in edge_types:
-        edge = DrawerEdgeType.objects.create(**edge_data)
-        created_edges.append(edge)
-        print(f"Created drawer edge type: {edge.name}")
-
-    return created_edges
 
 
 def create_drawer_bottom_size_defaults():
@@ -372,7 +349,6 @@ def main():
     print("\n=== Creating Drawer Settings ===")
     drawer_defaults = create_drawer_defaults()
     drawer_wood_stocks = create_drawer_wood_stock_defaults()
-    drawer_edge_types = create_drawer_edge_type_defaults()
     drawer_bottom_sizes = create_drawer_bottom_size_defaults()
     drawer_pricing = create_drawer_pricing_defaults()
 
@@ -393,7 +369,6 @@ def main():
 
     # Count drawer items
     drawer_wood_stock_count = DrawerWoodStock.objects.count()
-    drawer_edge_type_count = DrawerEdgeType.objects.count()
     drawer_bottom_size_count = DrawerBottomSize.objects.count()
     drawer_pricing_count = DrawerPricing.objects.count()
 
@@ -406,7 +381,6 @@ def main():
 
     print(f"\nDrawer Settings:")
     print(f"  Drawer Wood Stock Options: {drawer_wood_stock_count} total")
-    print(f"  Drawer Edge Types: {drawer_edge_type_count} total")
     print(f"  Drawer Bottom Sizes: {drawer_bottom_size_count} total")
     print(f"  Drawer Pricing Configurations: {drawer_pricing_count} total")
 

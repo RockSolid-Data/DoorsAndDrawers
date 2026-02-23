@@ -13,23 +13,22 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os, sys
 
-def get_base_path():
-    # If running from a PyInstaller bundle
-    if getattr(sys, 'frozen', False):
-        return os.path.dirname(sys.executable)
-    # Running from source
-    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Detect frozen mode (cx_Freeze or PyInstaller)
+FROZEN = getattr(sys, 'frozen', False)
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-BASE_PATH = get_base_path()
-
-if getattr(sys, 'frozen', False):
-    LOG_DIR = os.path.join(BASE_PATH, '_internal', 'logs')
-    os.makedirs(LOG_DIR, exist_ok=True)
+if FROZEN:
+    # Frozen: base directory is where the executable lives
+    BASE_DIR = Path(os.path.dirname(sys.executable))
+    # User data (DB, logs) stored in %LOCALAPPDATA%\DoorsAndDrawers
+    APP_DATA_DIR = Path(os.environ.get('LOCALAPPDATA', os.path.expanduser('~'))) / 'DoorsAndDrawers'
+    APP_DATA_DIR.mkdir(parents=True, exist_ok=True)
 else:
-    LOG_DIR = os.path.join(BASE_DIR, 'logs')
+    # Development: standard Django paths
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    APP_DATA_DIR = BASE_DIR
+
+LOG_DIR = str(APP_DATA_DIR / 'logs')
+os.makedirs(LOG_DIR, exist_ok=True)
 
 
 # Quick-start development settings - unsuitable for production
@@ -94,7 +93,7 @@ WSGI_APPLICATION = 'DoorsAndDrawers.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': APP_DATA_DIR / 'db.sqlite3',
     }
 }
 
@@ -125,7 +124,7 @@ LOGGING = {
         'http_file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs', 'app.log'),
+            'filename': os.path.join(LOG_DIR, 'http.log'),
             'formatter': 'http_detailed',
         },
     },

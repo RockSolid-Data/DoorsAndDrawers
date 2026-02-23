@@ -16,7 +16,7 @@ django.setup()
 
 # Now import the models
 from core.models import Customer, Order, DoorLineItem, WoodStock, EdgeProfile, PanelRise, Style, RailDefaults
-from core.models.drawer import DrawerLineItem, DrawerWoodStock, DrawerEdgeType, DrawerBottomSize
+from core.models.drawer import DrawerLineItem, DrawerWoodStock, DrawerBottomSize
 from django.utils import timezone
 
 fake = Faker()
@@ -51,7 +51,6 @@ def generate_orders(n=5, is_quote=False, max_items_per_order=5, min_items_per_or
 
     # Get required model instances for creating drawer items
     drawer_wood_stocks = list(DrawerWoodStock.objects.all())
-    drawer_edge_types = list(DrawerEdgeType.objects.all())
     drawer_bottoms = list(DrawerBottomSize.objects.all())
 
     # Check if we have the required data for doors
@@ -60,7 +59,7 @@ def generate_orders(n=5, is_quote=False, max_items_per_order=5, min_items_per_or
         return []
 
     # Check if we have the required data for drawers
-    if not all([drawer_wood_stocks, drawer_edge_types, drawer_bottoms]):
+    if not all([drawer_wood_stocks, drawer_bottoms]):
         print("Missing required data to create drawer items. Check your database setup.")
         print("Will generate orders with doors only.")
 
@@ -107,10 +106,9 @@ def generate_orders(n=5, is_quote=False, max_items_per_order=5, min_items_per_or
 
             for j in range(num_items):
                 # Randomly choose between door and drawer (if drawer data is available)
-                if all([drawer_wood_stocks, drawer_edge_types, drawer_bottoms]) and random.random() < 0.4:
+                if all([drawer_wood_stocks, drawer_bottoms]) and random.random() < 0.4:
                     # Create a drawer item
                     drawer_wood_stock = random.choice(drawer_wood_stocks)
-                    drawer_edge_type = random.choice(drawer_edge_types)
                     drawer_bottom = random.choice(drawer_bottoms)
 
                     # Generate random dimensions (in inches)
@@ -134,7 +132,6 @@ def generate_orders(n=5, is_quote=False, max_items_per_order=5, min_items_per_or
                     drawer_item = DrawerLineItem(
                         order=order,
                         wood_stock=drawer_wood_stock,
-                        edge_type=drawer_edge_type,
                         bottom=drawer_bottom,
                         width=width,
                         height=height,

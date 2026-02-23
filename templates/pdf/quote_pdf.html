@@ -193,7 +193,6 @@
             <thead>
                 <tr>
                     <th>Wood Type</th>
-                    <th>Edge Type</th>
                     <th>Bottom Type</th>
                     <th>Dimensions (W×H×D)</th>
                     <th>Options</th>
@@ -206,7 +205,6 @@
                 {% for item in drawer_items %}
                 <tr>
                     <td>{{ item.wood_stock.name }}</td>
-                    <td>{{ item.edge_type.name }}</td>
                     <td>{{ item.bottom.name }}</td>
                     <td>{{ item.width }} × {{ item.height }} × {{ item.depth }}</td>
                     <td>

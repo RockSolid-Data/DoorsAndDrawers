@@ -80,7 +80,8 @@ class Order(BaseModel):
 
     def __str__(self):
         type_prefix = "Quote" if self.is_quote else "Order"
-        return f"{type_prefix} {self.order_number} - {self.customer.company_name}"
+        company_name = self.customer.company_name or "No Company"
+        return f"{type_prefix} {self.order_number} - {company_name}"
 
     @property
     def order_number(self):

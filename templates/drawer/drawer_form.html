@@ -13,7 +13,7 @@
     {% endif %}
     
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Left column: Wood, Bottom, Edge Type -->
+        <!-- Left column: Wood, Bottom -->
         <div class="space-y-3">
             <!-- WoodStock -->
             <div class="form-group">
@@ -30,15 +30,6 @@
                 {% render_field form.bottom class="block w-full mt-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %}
                 {% if form.bottom.errors %}
                     <div class="text-red-500 text-xs mt-1">{{ form.bottom.errors }}</div>
-                {% endif %}
-            </div>
-            
-            <!-- Edge Type -->
-            <div class="form-group">
-                <label for="{{ form.edge_type.id_for_label }}" class="block text-sm font-medium text-gray-700">Edge Type</label>
-                {% render_field form.edge_type class="block w-full mt-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %}
-                {% if form.edge_type.errors %}
-                    <div class="text-red-500 text-xs mt-1">{{ form.edge_type.errors }}</div>
                 {% endif %}
             </div>
         </div>

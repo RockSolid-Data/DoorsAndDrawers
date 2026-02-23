@@ -21,3 +21,4 @@ zopfli==0.2.3.post1
 waitress==3.0.2
 whitenoise==6.9.0
 xhtml2pdf==0.2.16
+cx_Freeze>=7.0
