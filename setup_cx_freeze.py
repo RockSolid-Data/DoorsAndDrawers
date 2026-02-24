@@ -12,14 +12,21 @@ from cx_Freeze import setup, Executable
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+with open(os.path.join(BASE_DIR, 'VERSION')) as _vf:
+    VERSION = _vf.read().strip()
+
 # ---------------------------------------------------------------------------
 # Data files that must ship alongside the exe
 # (source_path, destination_path_relative_to_build_dir)
 # ---------------------------------------------------------------------------
+_py_base = sys.base_prefix
 include_files = [
     (os.path.join(BASE_DIR, 'templates'),   'templates'),
     (os.path.join(BASE_DIR, 'staticfiles'), 'staticfiles'),
     (os.path.join(BASE_DIR, 'static'),      'static'),
+    (os.path.join(BASE_DIR, 'VERSION'),     'VERSION'),
+    (os.path.join(_py_base, 'vcruntime140.dll'),   'vcruntime140.dll'),
+    (os.path.join(_py_base, 'vcruntime140_1.dll'), 'vcruntime140_1.dll'),
 ]
 
 # ---------------------------------------------------------------------------
@@ -108,7 +115,7 @@ build_exe_options = {
     'packages':      packages,
     'excludes':      excludes,
     'include_files': include_files,
-    'include_msvcr': True,
+    'include_msvcr': False,
 }
 
 # ---------------------------------------------------------------------------
@@ -170,7 +177,7 @@ bdist_msi_options = {
 # ---------------------------------------------------------------------------
 setup(
     name='DoorsAndDrawers',
-    version='1.0.0',
+    version=VERSION,
     description='Doors and Drawers - Order Management Desktop Application',
     author='Doors and Drawers',
     options={

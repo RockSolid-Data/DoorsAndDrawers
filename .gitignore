@@ -75,6 +75,7 @@ logs/
 strategies.md
 backup_migrations/
 /node_modules/
+tailwindcss.exe
 /myapp.zip
 /myapp_test.zip
 /myapp_prod.zip

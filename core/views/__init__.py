@@ -23,6 +23,7 @@ from .drawer import (
 )
 # Import common utilities
 from . import common
+from . import lifecycle
 
 def home(request):
     return render(request, 'home.html', {

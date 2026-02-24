@@ -61,5 +61,13 @@
         </div>
     </footer>
     {% block script %}{% endblock %}
+    <script>
+    (function() {
+        setInterval(function() {
+            fetch('/heartbeat/').catch(function(){});
+        }, 3000);
+        fetch('/heartbeat/').catch(function(){});
+    })();
+    </script>
 </body>
 </html> 

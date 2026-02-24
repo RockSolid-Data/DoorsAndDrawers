@@ -21,21 +21,32 @@ goto :help
 :: FREEZE – build standalone exe
 :: -------------------------------------------------------
 :freeze
-echo [1/3] Collecting static files ...
+echo [1/4] Compiling Tailwind CSS ...
+if exist tailwindcss.exe (
+    tailwindcss.exe -i ./src/styles.css -o ./static/css/tailwind.css --minify
+) else (
+    echo WARNING: tailwindcss.exe not found, using existing CSS
+)
+if %errorlevel% neq 0 (
+    echo ERROR: Tailwind CSS build failed
+    exit /b 1
+)
+
+echo [2/4] Collecting static files ...
 python manage.py collectstatic --noinput
 if %errorlevel% neq 0 (
     echo ERROR: collectstatic failed
     exit /b 1
 )
 
-echo [2/3] Building standalone executable (cx_Freeze) ...
+echo [3/4] Building standalone executable (cx_Freeze) ...
 python setup_cx_freeze.py build_exe
 if %errorlevel% neq 0 (
     echo ERROR: cx_Freeze build failed
     exit /b 1
 )
 
-echo [3/3] Build complete.
+echo [4/4] Build complete.
 echo.
 echo   Output folder: build\exe.win-amd64-*\
 echo   GUI exe:       DoorsAndDrawers.exe
@@ -47,21 +58,32 @@ goto :eof
 :: MSI – build Windows MSI installer
 :: -------------------------------------------------------
 :msi
-echo [1/3] Collecting static files ...
+echo [1/4] Compiling Tailwind CSS ...
+if exist tailwindcss.exe (
+    tailwindcss.exe -i ./src/styles.css -o ./static/css/tailwind.css --minify
+) else (
+    echo WARNING: tailwindcss.exe not found, using existing CSS
+)
+if %errorlevel% neq 0 (
+    echo ERROR: Tailwind CSS build failed
+    exit /b 1
+)
+
+echo [2/4] Collecting static files ...
 python manage.py collectstatic --noinput
 if %errorlevel% neq 0 (
     echo ERROR: collectstatic failed
     exit /b 1
 )
 
-echo [2/3] Building MSI installer ...
+echo [3/4] Building MSI installer ...
 python setup_cx_freeze.py bdist_msi
 if %errorlevel% neq 0 (
     echo ERROR: MSI build failed
     exit /b 1
 )
 
-echo [3/3] MSI build complete.
+echo [4/4] MSI build complete.
 echo.
 echo   Output: dist\*.msi
 echo.

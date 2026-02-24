@@ -17,8 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from core.views import settings, door_settings, drawer_settings
+from core.views.lifecycle import heartbeat, shutdown
 
 urlpatterns = [
     path('', include('core.urls')),
     path('settings/', settings, name='settings'),
+    path('heartbeat/', heartbeat, name='heartbeat'),
+    path('shutdown/', shutdown, name='shutdown'),
 ]
