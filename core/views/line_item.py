@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
@@ -80,13 +81,13 @@ def add_generic_item(request):
     name = cleaned_data['name']
     quantity = cleaned_data['quantity']
     price_per_unit = cleaned_data['price_per_unit']
-    total_price = price_per_unit * quantity
+    total_price = (price_per_unit * quantity).quantize(Decimal('0.01'))
 
     generic_item = {
         'type': 'other',
         'name': name,
         'quantity': str(quantity),
-        'price_per_unit': str(price_per_unit),
+        'price_per_unit': str(price_per_unit.quantize(Decimal('0.01'))),
         'total_price': str(total_price)
     }
 

@@ -58,17 +58,23 @@
         </div>
 
         <div class="flex items-center gap-2">
-            <span class="w-32 text-sm font-semibold text-gray-700 text-right shrink-0">Price Override</span>
-            <div class="flex items-center gap-3">
-                <input type="checkbox" id="drawer_custom_price" name="custom_price"
-                       class="h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 cursor-pointer">
-                <div class="drawer-custom-price-field hidden">
-                    <input type="number" id="drawer_price_per_unit_manual" name="price_per_unit_manual" step="0.01" min="0.01"
-                           placeholder="$ per unit"
-                           style="width:180px"
-                           class="px-3 py-2 text-sm bg-white border border-gray-300 rounded-md focus:border-emerald-400 focus:ring-1 focus:ring-emerald-200 transition-colors">
-                </div>
-            </div>
+            <label class="w-32 text-sm font-semibold text-gray-700 text-right shrink-0">Price $</label>
+            <input type="number" id="drawer_price_display" name="price_per_unit_manual" step="0.01" min="0.01"
+                   placeholder="—"
+                   class="flex-1 max-w-[224px] px-3 py-2 text-sm bg-white border border-gray-300 rounded-md focus:border-emerald-400 focus:ring-1 focus:ring-emerald-200 transition-colors">
+            <input type="hidden" name="custom_price" id="drawer_custom_price_hidden" value="">
+        </div>
+
+        <div class="flex items-center gap-2">
+            <label class="w-32 text-sm font-semibold text-gray-700 text-right shrink-0">Surcharge %</label>
+            <input type="number" id="drawer_surcharge_display" step="0.01" min="0"
+                   placeholder="—"
+                   class="flex-1 max-w-[224px] px-3 py-2 text-sm bg-white border border-gray-300 rounded-md focus:border-emerald-400 focus:ring-1 focus:ring-emerald-200 transition-colors">
+        </div>
+
+        <div class="flex items-center gap-2">
+            <label class="w-32 text-sm font-semibold text-gray-700 text-right shrink-0">Total</label>
+            <span id="drawer_total_display" class="px-3 py-2 text-sm font-semibold text-gray-700">—</span>
         </div>
     </div>
 
@@ -93,13 +99,120 @@
 
 <script>
 (function() {
-    const cb = document.getElementById('drawer_custom_price');
-    const field = document.querySelector('.drawer-custom-price-field');
-    if (cb && field) {
-        field.classList.toggle('hidden', !cb.checked);
-        cb.addEventListener('change', function() {
-            field.classList.toggle('hidden', !this.checked);
+    const container = document.getElementById('drawer-form-container');
+    if (!container) return;
+
+    const priceField = container.querySelector('#drawer_price_display');
+    const surchargeField = container.querySelector('#drawer_surcharge_display');
+    const totalDisplay = container.querySelector('#drawer_total_display');
+    const customHidden = container.querySelector('#drawer_custom_price_hidden');
+
+    let calculatedPrice = null;
+    let calculatedSurcharge = null;
+    let basePrice = null;
+    let priceOverridden = false;
+    let surchargeOverridden = false;
+    let calcTimer = null;
+
+    const triggerNames = ['quantity', 'height', 'width', 'depth', 'wood_stock', 'bottom', 'undermount', 'finishing'];
+    triggerNames.forEach(function(name) {
+        const el = container.querySelector('[name="' + name + '"]');
+        if (!el) return;
+        const evt = (el.tagName === 'SELECT' || el.type === 'checkbox') ? 'change' : 'input';
+        el.addEventListener(evt, function() {
+            if (priceOverridden && !surchargeOverridden) {
+                updateTotal();
+            } else {
+                scheduleCalc();
+            }
         });
+    });
+
+    function scheduleCalc() {
+        clearTimeout(calcTimer);
+        calcTimer = setTimeout(fetchPrice, 300);
     }
+
+    function fetchPrice() {
+        const vals = {};
+        ['wood_stock', 'bottom', 'width', 'height', 'depth', 'quantity'].forEach(function(n) {
+            const el = container.querySelector('[name="' + n + '"]');
+            vals[n] = el ? el.value : '';
+        });
+        vals.undermount = container.querySelector('[name="undermount"]')?.checked ? '1' : '0';
+        vals.finishing = container.querySelector('[name="finishing"]')?.checked ? '1' : '0';
+
+        if (!vals.wood_stock || !vals.bottom || !vals.width || !vals.height || !vals.depth) return;
+
+        const params = new URLSearchParams(vals);
+        fetch('{% url "calculate_drawer_price" %}?' + params.toString())
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.error) return;
+                calculatedPrice = parseFloat(data.price_per_unit);
+                calculatedSurcharge = parseFloat(data.surcharge_percent);
+                basePrice = parseFloat(data.base_price);
+
+                if (!surchargeOverridden) {
+                    surchargeField.value = calculatedSurcharge.toFixed(2);
+                }
+
+                if (!priceOverridden) {
+                    if (surchargeOverridden) {
+                        var sc = parseFloat(surchargeField.value) || 0;
+                        priceField.value = (basePrice * (1 + sc / 100)).toFixed(2);
+                        customHidden.value = 'on';
+                    } else {
+                        priceField.value = calculatedPrice.toFixed(2);
+                    }
+                }
+                updateTotal();
+            })
+            .catch(function() {});
+    }
+
+    priceField.addEventListener('input', function() {
+        priceOverridden = true;
+        customHidden.value = 'on';
+        updateTotal();
+    });
+
+    surchargeField.addEventListener('input', function() {
+        surchargeOverridden = true;
+        if (basePrice !== null && !priceOverridden) {
+            var sc = parseFloat(this.value) || 0;
+            priceField.value = (basePrice * (1 + sc / 100)).toFixed(2);
+            customHidden.value = 'on';
+        }
+        updateTotal();
+    });
+
+    function updateTotal() {
+        const price = parseFloat(priceField.value) || 0;
+        const qty = parseInt(container.querySelector('[name="quantity"]')?.value) || 0;
+        const total = (price * qty).toFixed(2);
+        totalDisplay.textContent = price > 0 && qty > 0 ? '$' + total : '—';
+    }
+
+    window.drawerPriceCalc = {
+        reset: function() {
+            priceOverridden = false;
+            surchargeOverridden = false;
+            calculatedPrice = null;
+            calculatedSurcharge = null;
+            basePrice = null;
+            priceField.value = '';
+            surchargeField.value = '';
+            totalDisplay.textContent = '—';
+            customHidden.value = '';
+        },
+        setOverride: function(price) {
+            priceOverridden = true;
+            priceField.value = parseFloat(price).toFixed(2);
+            customHidden.value = 'on';
+            updateTotal();
+        },
+        recalculate: function() { fetchPrice(); }
+    };
 })();
 </script>

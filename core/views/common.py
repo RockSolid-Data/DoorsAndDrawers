@@ -288,8 +288,8 @@ def process_line_item_form(request, form_class, model_class, item_type, transfor
                 session_item = {
                     'type': item_type,
                     'quantity': str(cleaned_data['quantity']),
-                    'price_per_unit': str(item_model.price_per_unit),
-                    'total_price': str(price),
+                    'price_per_unit': str(Decimal(str(item_model.price_per_unit)).quantize(Decimal('0.01'))),
+                    'total_price': str(Decimal(str(price)).quantize(Decimal('0.01'))),
                     'custom_price': custom_price
                 }
         except Exception as e:

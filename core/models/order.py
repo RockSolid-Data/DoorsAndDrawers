@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.db import models
 from itertools import chain
 from .base import BaseModel
@@ -138,30 +139,29 @@ class Order(BaseModel):
 
     def calculate_totals(self):
         """Calculate and update all order totals based on customer defaults"""
+        TWO_PLACES = Decimal('0.01')
         customer_defaults = self.customer.defaults
         item_total = self.item_total
 
-        # Discount and surcharge are based on item total
         if customer_defaults.discount_type == 'PERCENT':
-            self.discount_amount = item_total * (customer_defaults.discount_value / 100)
+            self.discount_amount = (item_total * (customer_defaults.discount_value / 100)).quantize(TWO_PLACES)
         else:
             self.discount_amount = customer_defaults.discount_value
 
         if customer_defaults.surcharge_type == 'PERCENT':
-            self.surcharge_amount = item_total * (customer_defaults.surcharge_value / 100)
+            self.surcharge_amount = (item_total * (customer_defaults.surcharge_value / 100)).quantize(TWO_PLACES)
         else:
             self.surcharge_amount = customer_defaults.surcharge_value
 
-        # Shipping is based on pre-shipping subtotal (item total - discount + surcharge)
         pre_shipping_subtotal = item_total - self.discount_amount + self.surcharge_amount
         if customer_defaults.shipping_type == 'PERCENT':
-            self.shipping_amount = pre_shipping_subtotal * (customer_defaults.shipping_value / 100)
+            self.shipping_amount = (pre_shipping_subtotal * (customer_defaults.shipping_value / 100)).quantize(TWO_PLACES)
         else:
             self.shipping_amount = customer_defaults.shipping_value
 
         if self.customer.taxable and self.customer.tax_percentage > 0:
-            self.tax_amount = self.subtotal * (self.customer.tax_percentage / 100)
+            self.tax_amount = (self.subtotal * (self.customer.tax_percentage / 100)).quantize(TWO_PLACES)
         else:
-            self.tax_amount = 0
+            self.tax_amount = Decimal('0.00')
 
-        self.total = self.subtotal + self.tax_amount
+        self.total = (self.subtotal + self.tax_amount).quantize(TWO_PLACES)

@@ -192,7 +192,7 @@ class DrawerLineItem(LineItem):
         if matching:
             price *= (1 + matching.surcharge_percent / Decimal('100'))
 
-        return price
+        return price.quantize(Decimal('0.01'))
     
     def save(self, *args, **kwargs):
         # Always set type to 'drawer'

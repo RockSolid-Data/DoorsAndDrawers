@@ -2,11 +2,11 @@
     <dl class="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-4">
         <div>
             <dt class="text-xs text-gray-500 mb-1">Finish Charge</dt>
-            <dd class="text-sm font-medium text-gray-900">${{ defaults.finish_charge }}</dd>
+            <dd class="text-sm font-medium text-gray-900">${{ defaults.finish_charge|floatformat:2 }}</dd>
         </div>
         <div>
             <dt class="text-xs text-gray-500 mb-1">Undermount Charge</dt>
-            <dd class="text-sm font-medium text-gray-900">${{ defaults.undermount_charge }}</dd>
+            <dd class="text-sm font-medium text-gray-900">${{ defaults.undermount_charge|floatformat:2 }}</dd>
         </div>
         <div>
             <dt class="text-xs text-gray-500 mb-1">Ends Adjustment</dt>

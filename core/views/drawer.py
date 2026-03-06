@@ -1,6 +1,12 @@
+from decimal import Decimal
+from django.db.models import Q
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
-from ..models.drawer import DrawerLineItem, DrawerWoodStock, DrawerBottomSize
+from ..models.drawer import (
+    DrawerLineItem, DrawerWoodStock, DrawerBottomSize,
+    DrawerPricing, DrawerDimensionSurcharge, DefaultDrawerSettings,
+)
 from ..forms import DrawerForm
 from .common import process_line_item_form
 from .door import get_current_customer
@@ -65,8 +71,8 @@ def transform_drawer_data(request, cleaned_data, drawer_model, item_type, custom
         'quantity': str(cleaned_data['quantity']),
         'undermount': cleaned_data['undermount'],
         'finishing': cleaned_data['finishing'],
-        'price_per_unit': str(drawer_model.price_per_unit),
-        'total_price': str(price),
+        'price_per_unit': str(drawer_model.price_per_unit.quantize(Decimal('0.01'))),
+        'total_price': str(price.quantize(Decimal('0.01'))),
         'custom_price': custom_price
     }
 
@@ -82,4 +88,62 @@ def add_drawer(request):
         DrawerLineItem, 
         'drawer',
         transform_drawer_data
-    ) 
+    )
+
+
+@require_http_methods(["GET"])
+def calculate_drawer_price(request):
+    """Return calculated price breakdown for a drawer given current form values.
+    
+    Returns base_price (before surcharge), surcharge_percent, price_per_unit, and total.
+    """
+    try:
+        wood_stock_id = request.GET.get('wood_stock')
+        bottom_id = request.GET.get('bottom')
+        width = request.GET.get('width')
+        height = request.GET.get('height')
+        depth = request.GET.get('depth')
+        undermount = request.GET.get('undermount', '0') == '1'
+        finishing = request.GET.get('finishing', '0') == '1'
+        quantity = request.GET.get('quantity', '1')
+
+        if not all([wood_stock_id, bottom_id, width, height, depth]):
+            return JsonResponse({'error': 'Missing required fields'}, status=400)
+
+        wood_stock = DrawerWoodStock.objects.get(pk=wood_stock_id)
+        bottom = DrawerBottomSize.objects.get(pk=bottom_id)
+        w = Decimal(width)
+        h = Decimal(height)
+        d = Decimal(depth)
+
+        tier = DrawerPricing.objects.filter(height__gte=h).order_by('height').first()
+        if tier is None:
+            tier = DrawerPricing.objects.order_by('-height').first()
+        tier_price = tier.price if tier else Decimal('0.00')
+
+        base_price = tier_price + wood_stock.price + bottom.price
+
+        default_settings = DefaultDrawerSettings.objects.first()
+        if default_settings:
+            if undermount:
+                base_price += default_settings.undermount_charge
+            if finishing:
+                base_price += default_settings.finish_charge
+
+        matching = DrawerDimensionSurcharge.objects.filter(
+            Q(width__gt=0, width__lte=w) | Q(depth__gt=0, depth__lte=d)
+        ).order_by('-surcharge_percent').first()
+
+        surcharge_percent = matching.surcharge_percent if matching else Decimal('0.00')
+        price_per_unit = (base_price * (1 + surcharge_percent / Decimal('100'))).quantize(Decimal('0.01'))
+        qty = int(quantity)
+        total = (price_per_unit * qty).quantize(Decimal('0.01'))
+
+        return JsonResponse({
+            'base_price': str(base_price.quantize(Decimal('0.01'))),
+            'surcharge_percent': str(surcharge_percent),
+            'price_per_unit': str(price_per_unit),
+            'total': str(total),
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400) 

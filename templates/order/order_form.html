@@ -342,13 +342,10 @@ function populateFormFields(type, data) {
         setFieldValue(body, 'quantity', data.quantity || '');
         setFieldValue(body, 'width', data.width || '');
         setFieldValue(body, 'height', data.height || '');
-        if (data.custom_price) {
-            var cb = body.querySelector('[name="custom_price"]');
-            if (cb) { cb.checked = true; cb.dispatchEvent(new Event('change')); }
-            setFieldValue(body, 'price_per_unit_manual', data.price_per_unit || '');
-        } else {
-            var cb = body.querySelector('[name="custom_price"]');
-            if (cb) { cb.checked = false; cb.dispatchEvent(new Event('change')); }
+        if (data.custom_price && window.doorPriceCalc) {
+            window.doorPriceCalc.setOverride(data.price_per_unit);
+        } else if (window.doorPriceCalc) {
+            window.doorPriceCalc.recalculate();
         }
     } else if (type === 'drawer') {
         setFieldValue(body, 'wood_stock', data.wood_stock ? data.wood_stock.id : '');
@@ -359,13 +356,10 @@ function populateFormFields(type, data) {
         setFieldValue(body, 'depth', data.depth || '');
         setCheckbox(body, 'undermount', data.undermount);
         setCheckbox(body, 'finishing', data.finishing);
-        if (data.custom_price) {
-            var cb = body.querySelector('[name="custom_price"]');
-            if (cb) { cb.checked = true; cb.dispatchEvent(new Event('change')); }
-            setFieldValue(body, 'price_per_unit_manual', data.price_per_unit || '');
-        } else {
-            var cb = body.querySelector('[name="custom_price"]');
-            if (cb) { cb.checked = false; cb.dispatchEvent(new Event('change')); }
+        if (data.custom_price && window.drawerPriceCalc) {
+            window.drawerPriceCalc.setOverride(data.price_per_unit);
+        } else if (window.drawerPriceCalc) {
+            window.drawerPriceCalc.recalculate();
         }
     } else if (type === 'other') {
         setFieldValue(body, 'name', data.name || '');
@@ -424,6 +418,8 @@ function clearEditState(type) {
             delete btn.dataset.originalText;
         }
     }
+    if (type === 'door' && window.doorPriceCalc) window.doorPriceCalc.reset();
+    if (type === 'drawer' && window.drawerPriceCalc) window.drawerPriceCalc.reset();
     editingIndex = null;
 }
 
@@ -442,7 +438,7 @@ document.addEventListener('keydown', function(e) {
         (active.tagName === 'INPUT' && active.type === 'text') ||
         (active.tagName === 'SELECT'))) return;
 
-    const railMap = { 'a': 'rail_top', 's': 'rail_bottom', 'd': 'rail_right', 'f': 'rail_left' };
+    const railMap = { 'a': 'rail_top', 's': 'rail_bottom', 'd': 'rail_right', 'f': 'rail_left', 'g': 'style' };
     const fieldName = railMap[e.key.toLowerCase()];
     if (!fieldName) return;
 
@@ -534,6 +530,10 @@ function handlePostAdd(type) {
     // Clear dimension fields
     const clearFields = body.querySelectorAll('[data-clear-on-add]');
     clearFields.forEach(function(f) { f.value = ''; });
+
+    // Reset price fields
+    if (type === 'door' && window.doorPriceCalc) window.doorPriceCalc.reset();
+    if (type === 'drawer' && window.drawerPriceCalc) window.drawerPriceCalc.reset();
 
     // Clear validation error messages left over from a prior failed submit
     body.querySelectorAll('div.text-red-500.text-xs').forEach(function(el) { el.remove(); });

@@ -24,7 +24,7 @@
                     {% if item.type == 'other' %}N/A{% else %}{{ item.wood_stock.name|default:"?" }}{% endif %}
                 </td>
                 <td class="px-2 py-1.5 text-gray-700">
-                    {% if item.type == 'drawer' %}{{ item.width }}&times;{{ item.height }}&times;{{ item.depth }}{% elif item.type == 'door' %}{{ item.width }}&times;{{ item.height }}{% else %}N/A{% endif %}
+                    {% if item.type == 'drawer' %}{{ item.height }}&times;{{ item.width }}&times;{{ item.depth }}{% elif item.type == 'door' %}{{ item.width }}&times;{{ item.height }}{% else %}N/A{% endif %}
                 </td>
                 <td class="px-2 py-1.5 text-gray-700 text-xs">
                     {% if item.type == 'door' %}{{ item.style.name|default:"?" }}{% elif item.type == 'drawer' %}N/A{% else %}N/A{% endif %}
@@ -36,8 +36,8 @@
                     {% if item.type == 'drawer' %}{% if item.undermount %}UM {% endif %}{% if item.finishing %}Fin{% endif %}{% elif item.type == 'door' %}{{ item.rail_top }}/{{ item.rail_bottom }}/{{ item.rail_left }}/{{ item.rail_right }}/{{ item.interior_rail_size }}{% else %}Misc{% endif %}
                 </td>
                 <td class="px-2 py-1.5 text-gray-900">{{ item.quantity }}</td>
-                <td class="px-2 py-1.5 text-gray-700">${{ item.price_per_unit }}</td>
-                <td class="px-2 py-1.5 font-medium text-gray-900">${{ item.total_price }}</td>
+                <td class="px-2 py-1.5 text-gray-700">${{ item.price_per_unit|floatformat:2 }}</td>
+                <td class="px-2 py-1.5 font-medium text-gray-900">${{ item.total_price|floatformat:2 }}</td>
                 <td class="px-2 py-1.5">
                     <button type="button" class="text-red-500 hover:text-red-700"
                             onclick="event.stopPropagation()"

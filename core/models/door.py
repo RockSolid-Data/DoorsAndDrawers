@@ -211,7 +211,7 @@ class DoorLineItem(LineItem):
         if self.panel_rise and self.panel_rise.surcharge:
             price += self.panel_rise.surcharge
 
-        return price
+        return price.quantize(Decimal('0.01'))
     
     def __str__(self):
         return f"Door {self.id} - {self.wood_stock.name} {self.style.name}"

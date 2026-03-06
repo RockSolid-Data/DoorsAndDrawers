@@ -68,8 +68,7 @@ class LineItem(BaseModel):
         else:
             unit_price = self.calculate_price()
             
-        # Always multiply by quantity to get the total price
-        return unit_price * self.quantity
+        return (unit_price * self.quantity).quantize(Decimal('0.01'))
         
     @property
     def total_price(self):
