@@ -1,64 +1,50 @@
-<tr id="rail-defaults-row" class="bg-gray-50" hx-target="this" hx-swap="outerHTML">
-    <td class="px-6 py-4 whitespace-nowrap">
-        <input type="number" 
-               name="top" 
-               value="{{ defaults.top }}"
-               step="0.001"
-               min="0.001"
-               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-               form="rail-defaults-form">
-        {% if errors.top %}<div class="text-xs text-red-600 mt-1">{{ errors.top.0 }}</div>{% endif %}
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap">
-        <input type="number" 
-               name="bottom" 
-               value="{{ defaults.bottom }}"
-               step="0.001"
-               min="0.001"
-               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-               form="rail-defaults-form">
-        {% if errors.bottom %}<div class="text-xs text-red-600 mt-1">{{ errors.bottom.0 }}</div>{% endif %}
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap">
-        <input type="number" 
-               name="left" 
-               value="{{ defaults.left }}"
-               step="0.001"
-               min="0.001"
-               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-               form="rail-defaults-form">
-        {% if errors.left %}<div class="text-xs text-red-600 mt-1">{{ errors.left.0 }}</div>{% endif %}
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap">
-        <input type="number" 
-               name="right" 
-               value="{{ defaults.right }}"
-               step="0.001"
-               min="0.001"
-               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-               form="rail-defaults-form">
-        {% if errors.right %}<div class="text-xs text-red-600 mt-1">{{ errors.right.0 }}</div>{% endif %}
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-        <button type="submit" 
-                form="rail-defaults-form" 
-                class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-            Save
-        </button>
-        <a href="#" 
-           class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-           hx-get="{% url 'get_rail_defaults' %}"
-           hx-target="#rail-defaults-row"
-           hx-swap="outerHTML">
-            Cancel
-        </a>
-    </td>
-</tr>
-
-<form id="rail-defaults-form" 
-      hx-post="{% url 'update_rail_defaults' %}" 
-      hx-target="#rail-defaults-row" 
-      hx-swap="outerHTML">
-    <!-- Hidden input to ensure the CSRF token is included in the form -->
-    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" form="rail-defaults-form">
-</form> 
+<div id="rail-defaults-fields">
+    <form hx-post="{% url 'update_rail_defaults' %}" hx-target="#rail-defaults-fields" hx-swap="outerHTML">
+        {% csrf_token %}
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-4">
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide">Top Rail</label>
+                <input type="number" name="top" value="{{ defaults.top }}" step="0.001" min="0.001"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                {% if errors.top %}<p class="mt-1 text-xs text-red-600">{{ errors.top.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide">Bottom Rail</label>
+                <input type="number" name="bottom" value="{{ defaults.bottom }}" step="0.001" min="0.001"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                {% if errors.bottom %}<p class="mt-1 text-xs text-red-600">{{ errors.bottom.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide">Left Rail</label>
+                <input type="number" name="left" value="{{ defaults.left }}" step="0.001" min="0.001"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                {% if errors.left %}<p class="mt-1 text-xs text-red-600">{{ errors.left.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide">Right Rail</label>
+                <input type="number" name="right" value="{{ defaults.right }}" step="0.001" min="0.001"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                {% if errors.right %}<p class="mt-1 text-xs text-red-600">{{ errors.right.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide">Interior Rail</label>
+                <input type="number" name="interior_rail_size" value="{{ defaults.interior_rail_size }}" step="0.001" min="0.001"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                {% if errors.interior_rail_size %}<p class="mt-1 text-xs text-red-600">{{ errors.interior_rail_size.0 }}</p>{% endif %}
+            </div>
+        </div>
+        <div class="mt-4 flex justify-end space-x-2">
+            <button type="button"
+                    class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                    hx-get="{% url 'get_rail_defaults' %}"
+                    hx-target="#rail-defaults-fields"
+                    hx-swap="outerHTML">
+                Cancel
+            </button>
+            <button type="submit"
+                    class="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 transition-colors">
+                Save
+            </button>
+        </div>
+    </form>
+</div>

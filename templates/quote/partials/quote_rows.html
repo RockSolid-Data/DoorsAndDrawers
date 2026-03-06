@@ -1,16 +1,16 @@
 {% for quote in quotes %}
-    <tr class="hover:bg-gray-50">
-        <td class="px-6 py-4">{{ quote.order_number }}</td>
-        <td class="px-6 py-4">{{ quote.customer }}</td>
-        <td class="px-6 py-4">{{ quote.order_date|date:"M d, Y" }}</td>
-        <td class="px-6 py-4">
-            <a href="{% url 'quote_detail' quote.id %}" class="text-blue-600 hover:text-blue-900">View</a>
-        </td>
-    </tr>
+<tr class="hover:bg-gray-50">
+    <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">{{ quote.order_number }}</td>
+    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{{ quote.customer }}</td>
+    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{{ quote.order_date|date:"M d, Y" }}</td>
+    <td class="px-4 py-2 whitespace-nowrap text-sm">
+        <a href="{% url 'quote_detail' quote.id %}" class="text-indigo-600 hover:text-indigo-800 font-medium">View</a>
+    </td>
+</tr>
 {% empty %}
-    <tr>
-        <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
-            No quotes found in the specified range. Try different date or ID range values or <a href="{% url 'new_quote' %}" class="text-blue-600 hover:text-blue-900">create a new quote</a>.
-        </td>
-    </tr>
-{% endfor %} 
+<tr>
+    <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500">
+        No quotes found in the specified range. Try different date or ID range values or <a href="{% url 'new_quote' %}" class="text-indigo-600 hover:text-indigo-800">create a new quote</a>.
+    </td>
+</tr>
+{% endfor %}

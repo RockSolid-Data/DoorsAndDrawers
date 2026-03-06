@@ -1,22 +1,16 @@
 {% for order in orders %}
-<tr>
-    <td class="px-6 py-4 whitespace-nowrap">
-        <div class="text-sm font-medium text-gray-900">{{ order.order_number }}</div>
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap">
-        <div class="text-sm text-gray-900">{{ order.customer.company_name|title }}</div>
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap">
-        <div class="text-sm text-gray-900">{{ order.order_date|date:"M d, Y" }}</div>
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-        <a href="{% url 'order_detail' order.id %}" class="text-blue-600 hover:text-blue-900">View</a>
+<tr class="hover:bg-gray-50">
+    <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">{{ order.order_number }}</td>
+    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{{ order.customer.company_name|title }}</td>
+    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{{ order.order_date|date:"M d, Y" }}</td>
+    <td class="px-4 py-2 whitespace-nowrap text-sm">
+        <a href="{% url 'order_detail' order.id %}" class="text-indigo-600 hover:text-indigo-800 font-medium">View</a>
     </td>
 </tr>
 {% empty %}
 <tr>
-    <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
-        No orders found in the specified range. Try different date or ID range values or <a href="{% url 'new_order' %}" class="text-blue-600 hover:text-blue-900">create a new order</a>.
+    <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500">
+        No orders found in the specified range. Try different date or ID range values or <a href="{% url 'new_order' %}" class="text-indigo-600 hover:text-indigo-800">create a new order</a>.
     </td>
 </tr>
-{% endfor %} 
+{% endfor %}

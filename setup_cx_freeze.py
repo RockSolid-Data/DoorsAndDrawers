@@ -20,11 +20,14 @@ with open(os.path.join(BASE_DIR, 'VERSION')) as _vf:
 # (source_path, destination_path_relative_to_build_dir)
 # ---------------------------------------------------------------------------
 _py_base = sys.base_prefix
+ICON_PATH = os.path.join(BASE_DIR, 'icon.ico')
+
 include_files = [
     (os.path.join(BASE_DIR, 'templates'),   'templates'),
     (os.path.join(BASE_DIR, 'staticfiles'), 'staticfiles'),
     (os.path.join(BASE_DIR, 'static'),      'static'),
     (os.path.join(BASE_DIR, 'VERSION'),     'VERSION'),
+    (ICON_PATH, 'icon.ico'),
     (os.path.join(_py_base, 'vcruntime140.dll'),   'vcruntime140.dll'),
     (os.path.join(_py_base, 'vcruntime140_1.dll'), 'vcruntime140_1.dll'),
 ]
@@ -127,7 +130,7 @@ gui_exe = Executable(
     script='launcher.py',
     base='gui',
     target_name='DoorsAndDrawers.exe',
-    icon=None,                       # Replace with 'icon.ico' if available
+    icon=ICON_PATH,
     shortcut_name='Doors and Drawers',
     shortcut_dir='DesktopFolder',
 )
@@ -156,11 +159,15 @@ shortcut_table = [
         None,
         'Doors and Drawers - Order Management',
         None,
-        None,
-        None,
+        'IconId',
+        0,
         None,
         'TARGETDIR',
     ),
+]
+
+icon_table = [
+    ('IconId', os.path.join(BASE_DIR, 'icon.ico')),
 ]
 
 bdist_msi_options = {
@@ -169,6 +176,7 @@ bdist_msi_options = {
     'initial_target_dir': r'[ProgramFiles64Folder]\DoorsAndDrawers',
     'data': {
         'Shortcut': shortcut_table,
+        'Icon': icon_table,
     },
 }
 

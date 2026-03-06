@@ -1,116 +1,77 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-8">
-        <h1 class="text-2xl font-semibold">{{ title }}</h1>
-        <a href="{% url 'new_order' %}" class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg">
-            Create Order
-        </a>
-    </div>
+<div class="flex justify-between items-center mb-3">
+    <h1 class="text-xl font-bold text-gray-800">{{ title }}</h1>
+    <a href="{% url 'new_order' %}" class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">
+        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Create Order
+    </a>
+</div>
 
-    <!-- Range Search Form -->
-    <div class="mb-4 bg-white p-4 rounded-lg shadow-sm">
-        <form class="flex flex-col md:flex-row items-end gap-4"
-              hx-get="{% url 'order_search' %}"
-              hx-target="#order-results"
-              hx-indicator="#search-indicator"
-              hx-swap="innerHTML"
-              hx-trigger="submit, change delay:500ms from:#min-id, change delay:500ms from:#max-id, change delay:500ms from:#start-date, change delay:500ms from:#end-date, keyup delay:500ms from:#customer-search">
-            <div class="w-full md:w-auto">
-                <label for="min-id" class="block text-sm font-medium text-gray-700 mb-1">Order ID Range</label>
-                <div class="flex items-center">
-                    <input 
-                        type="number" 
-                        id="min-id" 
-                        name="min_id" 
-                        placeholder="Min ID" 
-                        class="shadow-sm rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        min="1"
-                    />
-                    <span class="mx-2 text-gray-500">to</span>
-                    <input 
-                        type="number" 
-                        id="max-id" 
-                        name="max_id" 
-                        placeholder="Max ID" 
-                        class="shadow-sm rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        min="1"
-                    />
-                </div>
+<div class="bg-white border border-gray-200 rounded-lg p-3 mb-3">
+    <form class="flex flex-wrap items-end gap-3"
+          hx-get="{% url 'order_search' %}"
+          hx-target="#order-results"
+          hx-indicator="#search-indicator"
+          hx-swap="innerHTML"
+          hx-trigger="submit, change delay:500ms from:#min-id, change delay:500ms from:#max-id, change delay:500ms from:#start-date, change delay:500ms from:#end-date, keyup delay:500ms from:#customer-search">
+        <div>
+            <label for="min-id" class="block text-xs font-medium text-gray-600 mb-0.5">Order ID Range</label>
+            <div class="flex items-center gap-1">
+                <input type="number" id="min-id" name="min_id" placeholder="Min" class="w-20 px-2 py-1.5 text-sm" min="1"/>
+                <span class="text-gray-400 text-xs">to</span>
+                <input type="number" id="max-id" name="max_id" placeholder="Max" class="w-20 px-2 py-1.5 text-sm" min="1"/>
             </div>
-            
-            <div class="w-full md:w-auto">
-                <label for="start-date" class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
-                <div class="flex items-center">
-                    <input 
-                        type="date" 
-                        id="start-date" 
-                        name="start_date" 
-                        class="shadow-sm rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
-                    <span class="mx-2 text-gray-500">to</span>
-                    <input 
-                        type="date" 
-                        id="end-date" 
-                        name="end_date" 
-                        class="shadow-sm rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
-                </div>
-            </div>
-            
-            <div class="w-full md:w-64">
-                <label for="customer-search" class="block text-sm font-medium text-gray-700 mb-1">Customer</label>
-                <input 
-                    type="text" 
-                    id="customer-search" 
-                    name="customer_search" 
-                    placeholder="Customer name or ORD-..." 
-                    class="shadow-sm rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm w-full"
-                />
-            </div>
-            
-            <div class="flex items-center gap-2 w-full md:w-auto">
-                <button 
-                    type="submit" 
-                    class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                    Filter
-                </button>
-                <div id="search-indicator" class="htmx-indicator">
-                    <svg class="animate-spin h-5 w-5 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                </div>
-                <!-- Reset Button -->
-                <button 
-                    type="button" 
-                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                    onclick="document.getElementById('min-id').value = ''; document.getElementById('max-id').value = ''; document.getElementById('start-date').value = ''; document.getElementById('end-date').value = ''; document.getElementById('customer-search').value = ''; this.form.requestSubmit();"
-                >
-                    Reset
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <div class="bg-white rounded-lg shadow">
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead>
-                    <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        <th class="px-6 py-3 bg-gray-50">ORDER NUMBER</th>
-                        <th class="px-6 py-3 bg-gray-50">CUSTOMER</th>
-                        <th class="px-6 py-3 bg-gray-50">DATE</th>
-                        <th class="px-6 py-3 bg-gray-50">ACTIONS</th>
-                    </tr>
-                </thead>
-                <tbody id="order-results" class="divide-y divide-gray-200">
-                    {% include 'order/partials/order_results.html' with orders=orders paginator=paginator %}
-                </tbody>
-            </table>
         </div>
+        
+        <div>
+            <label for="start-date" class="block text-xs font-medium text-gray-600 mb-0.5">Date Range</label>
+            <div class="flex items-center gap-1">
+                <input type="date" id="start-date" name="start_date" class="px-2 py-1.5 text-sm"/>
+                <span class="text-gray-400 text-xs">to</span>
+                <input type="date" id="end-date" name="end_date" class="px-2 py-1.5 text-sm"/>
+            </div>
+        </div>
+        
+        <div class="flex-1 min-w-[180px]">
+            <label for="customer-search" class="block text-xs font-medium text-gray-600 mb-0.5">Customer</label>
+            <input type="text" id="customer-search" name="customer_search" placeholder="Customer name or ORD-..." class="w-full px-2 py-1.5 text-sm"/>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <button type="submit" class="px-3 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded hover:bg-indigo-700">
+                Filter
+            </button>
+            <div id="search-indicator" class="htmx-indicator">
+                <svg class="animate-spin h-4 w-4 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+            <button type="button" class="px-3 py-1.5 bg-gray-100 text-gray-600 text-sm font-medium rounded border border-gray-300 hover:bg-gray-200"
+                    onclick="document.getElementById('min-id').value='';document.getElementById('max-id').value='';document.getElementById('start-date').value='';document.getElementById('end-date').value='';document.getElementById('customer-search').value='';this.form.requestSubmit();">
+                Reset
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50 border-b border-gray-200">
+                    <th class="px-4 py-2">Order Number</th>
+                    <th class="px-4 py-2">Customer</th>
+                    <th class="px-4 py-2">Date</th>
+                    <th class="px-4 py-2">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="order-results" class="divide-y divide-gray-100">
+                {% include 'order/partials/order_results.html' with orders=orders paginator=paginator %}
+            </tbody>
+        </table>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

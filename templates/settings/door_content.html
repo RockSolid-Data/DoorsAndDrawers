@@ -1,0 +1,202 @@
+<!-- Row 1: Defaults (2-column grid) -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Rail Defaults -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-gray-800">Rail Defaults</h2>
+        </div>
+        <div id="rail-defaults-content">
+            {% if rail_defaults %}
+                {% include 'settings/partials/rail_defaults_row_display.html' with defaults=rail_defaults %}
+            {% else %}
+                <p class="text-sm text-gray-500">No rail defaults configured.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Miscellaneous Door Settings -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-gray-800">Miscellaneous Settings</h2>
+        </div>
+        <div id="misc-settings-content">
+            {% if misc_settings %}
+                {% include 'settings/partials/misc_settings_row_display.html' with settings=misc_settings %}
+            {% else %}
+                <p class="text-sm text-gray-500">No miscellaneous settings configured.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Row 2: Lookup Lists (3-column grid) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <!-- Edge Profiles -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Edge Profiles</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Profile Name</th>
+                        <th scope="col" class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="edge-profiles-tbody" class="bg-white divide-y divide-gray-200">
+                    {% for profile in edge_profiles %}
+                        {% include 'settings/partials/edge_profile_row_display.html' with profile=profile %}
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" class="px-4 py-3 text-sm text-gray-500 text-center">No edge profiles</td>
+                    </tr>
+                    {% endfor %}
+                    {% include 'settings/partials/edge_profile_add_button.html' %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Panel Raises -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Panel Raises</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Raise Name</th>
+                        <th scope="col" class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="panel-rises-tbody" class="bg-white divide-y divide-gray-200">
+                    {% for rise in panel_rises %}
+                        {% include 'settings/partials/panel_rise_row_display.html' with rise=rise %}
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" class="px-4 py-3 text-sm text-gray-500 text-center">No panel raises</td>
+                    </tr>
+                    {% endfor %}
+                    {% include 'settings/partials/panel_rise_add_button.html' %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Door Designs -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Door Designs</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Design</th>
+                        <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Arch</th>
+                        <th scope="col" class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="door-designs-tbody" class="bg-white divide-y divide-gray-200">
+                    {% for design in designs %}
+                        {% include 'settings/partials/design_row_display.html' %}
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="px-4 py-3 text-sm text-gray-500 text-center">No door designs</td>
+                    </tr>
+                    {% endfor %}
+                    {% include 'settings/partials/door_design_add_button.html' %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Row 3: Door Styles (full width) -->
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Door Styles</h2>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Style Name</th>
+                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Panel Type</th>
+                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Design</th>
+                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
+                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Panels Across</th>
+                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Panels Down</th>
+                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Overlap</th>
+                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Designs Top</th>
+                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Designs Bottom</th>
+                    <th scope="col" class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="door-styles-tbody" class="bg-white divide-y divide-gray-200">
+                {% for style in styles %}
+                {% include 'settings/partials/style_row_display.html' with style=style %}
+                {% empty %}
+                <tr>
+                    <td colspan="10" class="px-4 py-3 text-sm text-gray-500 text-center">No door styles available</td>
+                </tr>
+                {% endfor %}
+                {% include 'settings/partials/style_add_button.html' %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Row 4: Wood Stock & Panel Types (2-column grid) -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+    <!-- Wood Stock -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Wood Stock</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Wood Type</th>
+                        <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Raised Price</th>
+                        <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Flat Price</th>
+                        <th scope="col" class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="wood-stocks-tbody" class="bg-white divide-y divide-gray-200">
+                    {% for wood in wood_stocks %}
+                    {% include 'settings/partials/wood_stock_row_display.html' with wood=wood %}
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-4 py-3 text-sm text-gray-500 text-center">No wood stock options</td>
+                    </tr>
+                    {% endfor %}
+                    {% include 'settings/partials/wood_stock_add_button.html' %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Panel Types -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Panel Types</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Panel Type</th>
+                        <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Surcharge W</th>
+                        <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Surcharge H</th>
+                        <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Surcharge %</th>
+                        <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Min Sq Ft</th>
+                        <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Flat Price</th>
+                        <th scope="col" class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="panel-types-tbody" class="bg-white divide-y divide-gray-200">
+                    {% for panel_type in panel_types %}
+                        {% include 'settings/partials/panel_type_row_display.html' with type=panel_type %}
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-4 py-3 text-sm text-gray-500 text-center">No panel types available</td>
+                    </tr>
+                    {% endfor %}
+                    {% include 'settings/partials/panel_type_add_button.html' %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

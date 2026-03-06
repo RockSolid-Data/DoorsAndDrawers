@@ -1,180 +1,107 @@
 {% load widget_tweaks %}
 
-{% comment %}
-<!-- Field rendering template -->
-{% endcomment %}
-
 {% block field_template %}
     {% with field=field is_dimension=is_dimension|default:False %}
-        <div class="form-group">
-            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                {{ field.label }}{% if is_dimension %} (inches){% endif %}
+        <div>
+            <label for="{{ field.id_for_label }}" class="block text-xs font-medium text-gray-600 mb-0.5">
+                {{ field.label }}{% if is_dimension %} (in){% endif %}
             </label>
-            {% render_field field %}
-            {% if field.errors %}
-                <div class="text-red-500 text-xs mt-1">{{ field.errors }}</div>
-            {% endif %}
-            {% if field.help_text %}
-                <span class="text-xs text-gray-500">{{ field.help_text }}</span>
-            {% endif %}
+            {% render_field field class="block w-full px-2 py-1 text-sm rounded" %}
+            {% if field.errors %}<div class="text-red-500 text-xs mt-0.5">{{ field.errors }}</div>{% endif %}
         </div>
     {% endwith %}
 {% endblock %}
 
-<div id="door-form-container" class="bg-white shadow rounded-lg p-6">
-    <h2 class="text-lg font-medium text-gray-900 mb-4">Door Details</h2>
+<div id="door-form-container" class="p-3">
+    <h2 class="text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Door Details</h2>
     
     {% if form.non_field_errors %}
-    <div class="mb-4 p-3 bg-red-50 border border-red-300 rounded text-red-700 text-sm">
-        {% for error in form.non_field_errors %}
-            <p>{{ error }}</p>
-        {% endfor %}
+    <div class="mb-2 p-2 bg-red-50 border border-red-200 rounded text-red-700 text-xs">
+        {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
     </div>
     {% endif %}
     
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Left column: Wood, Style, Edge, Panel Rise -->
-        <div class="space-y-3">
+    <div class="grid grid-cols-2 gap-3">
+        <div class="space-y-2">
         {% for field in form %}
             {% if field.name == 'wood_stock' or field.name == 'style' or field.name == 'edge_profile' or field.name == 'panel_rise' %}
-            <div class="form-group">
-                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
-                {% render_field field %}
-                {% if field.errors %}
-                    <div class="text-red-500 text-xs mt-1">{{ field.errors }}</div>
-                {% endif %}
-                {% if field.help_text %}
-                    <span class="text-xs text-gray-500">{{ field.help_text }}</span>
-                {% endif %}
+            <div>
+                <label for="{{ field.id_for_label }}" class="block text-xs font-medium text-gray-600 mb-0.5">{{ field.label }}</label>
+                {% render_field field class="block w-full px-2 py-1 text-sm rounded" %}
+                {% if field.errors %}<div class="text-red-500 text-xs mt-0.5">{{ field.errors }}</div>{% endif %}
             </div>
             {% endif %}
         {% endfor %}
     </div>
     
-    <!-- Right column: Width, Height, Rail dimensions, Quantity -->
-    <div class="space-y-3">
-        <!-- Width & Height in a 2-column layout -->
-        <div class="grid grid-cols-2 gap-4">
+    <div class="space-y-2">
+        <div class="grid grid-cols-2 gap-2">
             {% for field in form %}
                 {% if field.name == 'width' or field.name == 'height' %}
-                <div class="form-group">
-                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }} (inches)</label>
-                    {% render_field field %}
-                    {% if field.errors %}
-                        <div class="text-red-500 text-xs mt-1">{{ field.errors }}</div>
-                    {% endif %}
-                    {% if field.help_text %}
-                        <span class="text-xs text-gray-500">{{ field.help_text }}</span>
-                    {% endif %}
+                <div>
+                    <label for="{{ field.id_for_label }}" class="block text-xs font-medium text-gray-600 mb-0.5">{{ field.label }} (in)</label>
+                    {% render_field field class="block w-full px-2 py-1 text-sm rounded" %}
+                    {% if field.errors %}<div class="text-red-500 text-xs mt-0.5">{{ field.errors }}</div>{% endif %}
                 </div>
                 {% endif %}
             {% endfor %}
         </div>
         
-        <!-- Rail dimensions in a 2-column layout -->
-        <h3 class="text-sm font-medium text-gray-700 mt-2">Rail Dimensions (inches)</h3>
-        <div class="grid grid-cols-2 gap-4">
-            {% for field in form %}
-                {% if field.name == 'rail_top' or field.name == 'rail_bottom' or field.name == 'rail_left' or field.name == 'rail_right' %}
-                <div class="form-group">
-                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
-                    {% render_field field %}
-                    {% if field.errors %}
-                        <div class="text-red-500 text-xs mt-1">{{ field.errors }}</div>
+        <div>
+            <span class="text-xs font-medium text-gray-600">Rails (in)</span>
+            <div class="grid grid-cols-2 gap-2 mt-0.5">
+                {% for field in form %}
+                    {% if field.name == 'rail_top' or field.name == 'rail_bottom' or field.name == 'rail_left' or field.name == 'rail_right' %}
+                    <div>
+                        <label for="{{ field.id_for_label }}" class="block text-xs text-gray-500">{{ field.label }}</label>
+                        {% render_field field class="block w-full px-2 py-1 text-sm rounded" %}
+                    </div>
                     {% endif %}
-                    {% if field.help_text %}
-                        <span class="text-xs text-gray-500">{{ field.help_text }}</span>
-                    {% endif %}
-                </div>
-                {% endif %}
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
         
-        <!-- Quantity -->
         {% for field in form %}
             {% if field.name == 'quantity' %}
-            <div class="form-group">
-                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
-                {% render_field field %}
-                {% if field.errors %}
-                    <div class="text-red-500 text-xs mt-1">{{ field.errors }}</div>
-                {% endif %}
-                {% if field.help_text %}
-                    <span class="text-xs text-gray-500">{{ field.help_text }}</span>
-                {% endif %}
+            <div>
+                <label for="{{ field.id_for_label }}" class="block text-xs font-medium text-gray-600 mb-0.5">{{ field.label }}</label>
+                {% render_field field class="block w-full px-2 py-1 text-sm rounded" %}
             </div>
             {% endif %}
         {% endfor %}
         
-        <!-- Custom Price Toggle -->
-        <div class="form-group mt-4">
-            <div class="flex items-center">
-                <input type="checkbox" id="custom_price" name="custom_price" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                <label for="custom_price" class="ml-2 block text-sm font-medium text-gray-700">
-                    Use Custom Price
-                </label>
-            </div>
+        <div class="flex items-center gap-1.5">
+            <input type="checkbox" id="custom_price" name="custom_price" class="h-3.5 w-3.5 text-indigo-600 border-gray-400 rounded">
+            <label for="custom_price" class="text-xs font-medium text-gray-600">Custom Price</label>
         </div>
         
-        <!-- Custom Price Value -->
-        <div class="form-group mt-2 custom-price-field" style="display: none;">
-            <label for="price_per_unit_manual" class="block text-sm font-medium text-gray-700">Price Per Unit ($)</label>
-            <input type="number" id="price_per_unit_manual" name="price_per_unit_manual" step="0.01" min="0.01" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-            <span class="text-xs text-gray-500">Enter a custom price per unit</span>
+        <div class="custom-price-field" style="display: none;">
+            <label for="price_per_unit_manual" class="block text-xs font-medium text-gray-600 mb-0.5">Price Per Unit ($)</label>
+            <input type="number" id="price_per_unit_manual" name="price_per_unit_manual" step="0.01" min="0.01" class="block w-full px-2 py-1 text-sm rounded">
         </div>
     </div>
 </div>
 
-<div class="mt-6">
+<div class="mt-3">
     <button type="button" 
-            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            class="px-3 py-1.5 text-xs font-semibold rounded text-white bg-indigo-600 hover:bg-indigo-700"
             hx-post="{% url 'new_door' %}"
             hx-include="#door-form-container"
             hx-target="#line-items-container"
             hx-swap="innerHTML">
-        Add
+        Add Door
     </button>
 </div>
 
 <script>
-    // Run the function immediately and on DOM content loaded
     (function setupCustomPriceToggle() {
-        const customPriceCheckbox = document.getElementById('custom_price');
-        const customPriceField = document.querySelector('.custom-price-field');
-        
-        if (customPriceCheckbox && customPriceField) {
-            // Set initial state
-            customPriceField.style.display = customPriceCheckbox.checked ? 'block' : 'none';
-            
-            // Add event listener
-            customPriceCheckbox.addEventListener('change', function() {
-                customPriceField.style.display = this.checked ? 'block' : 'none';
-                console.log('Custom price toggled:', this.checked);
-            });
-            
-            console.log('Custom price toggle initialized');
-        } else {
-            console.log('Custom price elements not found', {
-                checkbox: customPriceCheckbox,
-                field: customPriceField
+        const cb = document.getElementById('custom_price');
+        const field = document.querySelector('.custom-price-field');
+        if (cb && field) {
+            field.style.display = cb.checked ? 'block' : 'none';
+            cb.addEventListener('change', function() {
+                field.style.display = this.checked ? 'block' : 'none';
             });
         }
     })();
-    
-    // Also run on DOM content loaded in case the script loads before elements
-    document.addEventListener('DOMContentLoaded', function() {
-        const customPriceCheckbox = document.getElementById('custom_price');
-        const customPriceField = document.querySelector('.custom-price-field');
-        
-        if (customPriceCheckbox && customPriceField) {
-            // Set initial state
-            customPriceField.style.display = customPriceCheckbox.checked ? 'block' : 'none';
-            
-            // Add event listener
-            customPriceCheckbox.addEventListener('change', function() {
-                customPriceField.style.display = this.checked ? 'block' : 'none';
-                console.log('Custom price toggled (DOMContentLoaded):', this.checked);
-            });
-        }
-    });
-</script> 
+</script>

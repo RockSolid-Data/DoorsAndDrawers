@@ -2,172 +2,140 @@
 {% load widget_tweaks %}
 
 {% block content %}
-<div class="p-6" id="order-container">
-    <h1 class="text-3xl font-bold text-indigo-900 mb-8">{{ title }}</h1>
+<div id="order-container">
+    <h1 class="text-xl font-bold text-gray-800 mb-4">{{ title }}</h1>
 
     <form id="order-form" method="post" action="{% url 'new_quote' %}">
         {% csrf_token %}
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Top row with equal heights -->
-            <div class="md:grid md:grid-rows-1 md:grid-cols-2 col-span-2 gap-4">
-                <!-- Customer Info (Top Left) -->
-                <div class="h-full p-4 rounded-lg bg-white shadow-lg">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-bold text-blue-600">Customer Info</h2>
-                        <a href="{% url 'new_customer' %}" 
-                           class="inline-flex items-center px-3 py-1.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                            <svg class="-ml-0.5 mr-1.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
-                            </svg>
-                            Add Customer
-                        </a>
-                    </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <div class="lg:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-3">
+                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                    <h2 class="text-sm font-bold text-indigo-700 uppercase tracking-wide mb-3">Customer Info</h2>
                     {% if form.non_field_errors %}
-                        <div class="mb-4 p-4 rounded-md bg-red-50 text-red-700 border border-red-200">
+                        <div class="mb-3 p-2 rounded bg-red-50 text-red-700 border border-red-200 text-sm">
                             {% for error in form.non_field_errors %}
                                 <p>{{ error }}</p>
                             {% endfor %}
                         </div>
                     {% endif %}
 
-                    <div class="space-y-4">
+                    <div class="space-y-2">
                         {% for field in form %}
                             {% if field.name == 'customer' or field.name == 'billing_address1' or field.name == 'billing_address2' or field.name == 'order_date' %}
-                                <div class="space-y-2">
-                                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                <div>
+                                    <label for="{{ field.id_for_label }}" class="block text-xs font-medium text-gray-600 mb-0.5">
                                         {{ field.label }}
                                         {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
                                     </label>
                                     
                                     {% if field.name == 'customer' %}
-                                        {% render_field field class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3" onchange="updateAddresses(this.value)" %}
-                                    {% elif field.name == 'billing_address1' %}
-                                        {% render_field field class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3" %}
-                                    {% elif field.name == 'billing_address2' %}
-                                        {% render_field field class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3" %}
+                                        {% render_field field class="block w-full px-2.5 py-1.5 text-sm rounded" onchange="updateAddresses(this.value)" %}
                                     {% else %}
                                         {% if field.errors %}
-                                            {% render_field field class="mt-1 block w-full rounded-md border-red-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-3" %}
+                                            {% render_field field class="block w-full px-2.5 py-1.5 text-sm rounded border-red-400" %}
                                             {% for error in field.errors %}
-                                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                                <p class="mt-0.5 text-xs text-red-600">{{ error }}</p>
                                             {% endfor %}
                                         {% else %}
-                                            {% render_field field class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3" %}
+                                            {% render_field field class="block w-full px-2.5 py-1.5 text-sm rounded" %}
                                         {% endif %}
-                                    {% endif %}
-                                    
-                                    {% if field.help_text %}
-                                        <p class="mt-2 text-sm text-gray-500">{{ field.help_text }}</p>
                                     {% endif %}
                                 </div>
                             {% else %}
-                                <!-- Render other form fields as hidden -->
                                 {% render_field field type="hidden" %}
                             {% endif %}
                         {% endfor %}
                     </div>
                 </div>
 
-                <!-- Order Summary (Top Right) -->
-                <div class="h-full p-4 rounded-lg bg-white shadow-lg">
-                    <h2 class="text-xl font-bold text-blue-600 mb-4">Quote Summary</h2>
-                    <div class="overflow-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <tr>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 bg-blue-50">Item Total:</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 bg-blue-50 text-right" id="item-total">$0.00</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 bg-blue-50">Discount:</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 bg-blue-50 text-right" id="discount-display">-</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 bg-blue-50">Surcharge:</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 bg-blue-50 text-right" id="surcharge-display">-</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 bg-blue-50">Shipping:</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 bg-blue-50 text-right" id="shipping-display">-</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 bg-blue-50">Sub Total:</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 bg-blue-50 text-right" id="sub-total-display">$0.00</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 bg-blue-50">Tax Total:</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 bg-blue-50 text-right" id="tax-total-display">$0.00</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 bg-blue-50 font-bold">Total:</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 bg-blue-50 text-right font-bold" id="total-display">$0.00</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                    <h2 class="text-sm font-bold text-indigo-700 uppercase tracking-wide mb-3">Quote Summary</h2>
+                    <table class="w-full text-sm">
+                        <tbody class="divide-y divide-gray-100">
+                            <tr>
+                                <td class="py-1.5 font-medium text-gray-700">Item Total</td>
+                                <td class="py-1.5 text-right text-gray-900" id="item-total">$0.00</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1.5 font-medium text-gray-700">Discount</td>
+                                <td class="py-1.5 text-right text-gray-900" id="discount-display">-</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1.5 font-medium text-gray-700">Surcharge</td>
+                                <td class="py-1.5 text-right text-gray-900" id="surcharge-display">-</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1.5 font-medium text-gray-700">Shipping</td>
+                                <td class="py-1.5 text-right text-gray-900" id="shipping-display">-</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1.5 font-medium text-gray-700">Sub Total</td>
+                                <td class="py-1.5 text-right text-gray-900" id="sub-total-display">$0.00</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1.5 font-medium text-gray-700">Tax</td>
+                                <td class="py-1.5 text-right text-gray-900" id="tax-total-display">$0.00</td>
+                            </tr>
+                            <tr class="border-t-2 border-gray-300">
+                                <td class="py-2 font-bold text-gray-900">Total</td>
+                                <td class="py-2 text-right font-bold text-gray-900 text-base" id="total-display">$0.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- Add Door Form (Bottom Left) -->
-            <div class="aspect-square p-4 rounded-lg bg-white shadow-lg">
-                <h2 class="text-xl font-bold text-blue-600 mb-4">Add Line Item</h2>
-                <div class="flex justify-end mb-4 space-x-2">
-                    <button type="button" 
-                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                            hx-get="{% url 'door_form' %}"
-                            hx-target="#door-form-container"
-                            hx-swap="innerHTML">
-                        <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
-                        </svg>
-                        Add Door
-                    </button>
-                    <button type="button" 
-                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                            hx-get="{% url 'drawer_form' %}"
-                            hx-target="#door-form-container"
-                            hx-swap="innerHTML">
-                        <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
-                        </svg>
-                        Add Drawer
-                    </button>
-                    <button type="button" 
-                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
-                            hx-get="{% url 'generic_item_form' %}"
-                            hx-target="#door-form-container"
-                            hx-swap="innerHTML">
-                        <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
-                        </svg>
-                        Add Other
-                    </button>
+            <div class="bg-white border border-gray-200 rounded-lg p-4" style="min-height: 350px;">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-sm font-bold text-indigo-700 uppercase tracking-wide">Add Line Item</h2>
+                    <div class="flex gap-1.5">
+                        <button type="button" 
+                                class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded text-white bg-indigo-600 hover:bg-indigo-700"
+                                hx-get="{% url 'door_form' %}"
+                                hx-target="#door-form-container"
+                                hx-swap="innerHTML">
+                            <svg class="h-3.5 w-3.5 mr-0.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                            Door
+                        </button>
+                        <button type="button" 
+                                class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded text-white bg-green-600 hover:bg-green-700"
+                                hx-get="{% url 'drawer_form' %}"
+                                hx-target="#door-form-container"
+                                hx-swap="innerHTML">
+                            <svg class="h-3.5 w-3.5 mr-0.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                            Drawer
+                        </button>
+                        <button type="button" 
+                                class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded text-white bg-amber-600 hover:bg-amber-700"
+                                hx-get="{% url 'generic_item_form' %}"
+                                hx-target="#door-form-container"
+                                hx-swap="innerHTML">
+                            <svg class="h-3.5 w-3.5 mr-0.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                            Other
+                        </button>
+                    </div>
                 </div>
-                <div id="door-form-container" class="overflow-auto h-3/4">
-                    <!-- Door form will be loaded here -->
-                    <!-- Adding csrf token here for HTMX to use with the door form -->
+                <div id="door-form-container" class="overflow-auto" style="max-height: 300px;">
                     {% csrf_token %}
                 </div>
             </div>
 
-            <!-- Line Items List (Bottom Right) -->
-            <div class="aspect-square p-4 rounded-lg bg-white shadow-lg">
-                <h2 class="text-xl font-bold text-blue-600 mb-4">Line Items List</h2>
-                <div id="line-items-container" class="overflow-auto h-3/4">
-                    <!-- Line items placeholder -->
-                    <div class="text-center py-4 text-gray-500">
+            <div class="bg-white border border-gray-200 rounded-lg p-4" style="min-height: 350px;">
+                <h2 class="text-sm font-bold text-indigo-700 uppercase tracking-wide mb-3">Line Items</h2>
+                <div id="line-items-container" class="overflow-auto" style="max-height: 300px;">
+                    <div class="text-center py-6 text-sm text-gray-400">
                         No items added yet
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="flex justify-end space-x-4 pt-8">
-            <a href="{% url 'quotes' %}" class="px-4 py-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <div class="flex justify-end gap-3 pt-4">
+            <a href="{% url 'quotes' %}" class="px-4 py-2 text-sm font-medium rounded border border-gray-300 text-gray-700 bg-white hover:bg-gray-50">
                 Cancel
             </a>
-            <button type="submit" class="px-4 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <button type="submit" class="px-4 py-2 text-sm font-medium rounded text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm">
                 Save Quote
             </button>
         </div>
@@ -175,26 +143,19 @@
 </div>
 
 <script>
-// Function to update addresses when customer is selected
 function updateAddresses(customerId) {
     fetch(`/orders/get-customer-address/?customer=${customerId}`)
         .then(response => response.json())
         .then(data => {
-            // Update addresses
             document.getElementById('id_billing_address1').value = data.addresses.address1;
             document.getElementById('id_billing_address2').value = data.addresses.address2;
-            
-            // Update order calculations with customer defaults
             updateOrderCalculations(data.defaults);
         });
 }
 
-// Function to update calculations based on customer defaults
 function updateOrderCalculations(defaults) {
-    // Get current item total (don't modify it)
     const itemTotal = parseFloat(document.getElementById('item-total').textContent.replace('$', '')) || 0;
     
-    // Update discount display and value
     let discountValue = 0;
     const discountDisplay = document.getElementById('discount-display');
     if (defaults.discount_type && defaults.discount_value) {
@@ -206,7 +167,6 @@ function updateOrderCalculations(defaults) {
         discountDisplay.textContent = '-';
     }
     
-    // Update surcharge display and value
     let surchargeValue = 0;
     const surchargeDisplay = document.getElementById('surcharge-display');
     if (defaults.surcharge_type && defaults.surcharge_value) {
@@ -218,7 +178,6 @@ function updateOrderCalculations(defaults) {
         surchargeDisplay.textContent = '-';
     }
 
-    // Update shipping display and value
     let shippingValue = 0;
     const shippingDisplay = document.getElementById('shipping-display');
     if (defaults.shipping_type && defaults.shipping_value) {
@@ -230,16 +189,13 @@ function updateOrderCalculations(defaults) {
         shippingDisplay.textContent = '-';
     }
     
-    // Calculate and update order total
     updateOrderTotal(itemTotal, discountValue, surchargeValue, shippingValue);
 }
 
-// Function to update the item total (called only when line items change)
 function updateItemTotal(newTotal) {
     const itemTotalElement = document.getElementById('item-total');
     itemTotalElement.textContent = `$${newTotal.toFixed(2)}`;
     
-    // After updating the item total, recalculate order totals
     const discountValue = getDiscountValue();
     const surchargeValue = getSurchargeValue();
     const shippingValue = getShippingValue();
@@ -247,79 +203,53 @@ function updateItemTotal(newTotal) {
     updateOrderTotal(newTotal, discountValue, surchargeValue, shippingValue);
 }
 
-// Helper function to calculate and update the final order total
 function updateOrderTotal(itemTotal, discount, surcharge, shipping) {
     const subtotal = itemTotal - discount + surcharge + shipping;
-    // Update subtotal display
     document.getElementById('sub-total-display').textContent = `$${subtotal.toFixed(2)}`;
-    
-    // For now we're not calculating tax, but the structure is in place
     document.getElementById('tax-total-display').textContent = `$0.00`;
-    
-    // Update total
     document.getElementById('total-display').textContent = `$${subtotal.toFixed(2)}`;
 }
 
-// Helper functions to retrieve current values
 function getDiscountValue() {
     const discountDisplay = document.getElementById('discount-display');
     const discountText = discountDisplay.textContent;
-    
     if (discountText === '-') return 0;
-    
     const itemTotal = parseFloat(document.getElementById('item-total').textContent.replace('$', '')) || 0;
-    
     if (discountText.startsWith('%')) {
-        const percentValue = parseFloat(discountText.replace('%', ''));
-        return itemTotal * percentValue / 100;
+        return itemTotal * parseFloat(discountText.replace('%', '')) / 100;
     } else if (discountText.startsWith('$')) {
         return parseFloat(discountText.replace('$', ''));
     }
-    
     return 0;
 }
 
 function getSurchargeValue() {
     const surchargeDisplay = document.getElementById('surcharge-display');
     const surchargeText = surchargeDisplay.textContent;
-    
     if (surchargeText === '-') return 0;
-    
     const itemTotal = parseFloat(document.getElementById('item-total').textContent.replace('$', '')) || 0;
-    
     if (surchargeText.startsWith('%')) {
-        const percentValue = parseFloat(surchargeText.replace('%', ''));
-        return itemTotal * percentValue / 100;
+        return itemTotal * parseFloat(surchargeText.replace('%', '')) / 100;
     } else if (surchargeText.startsWith('$')) {
         return parseFloat(surchargeText.replace('$', ''));
     }
-    
     return 0;
 }
 
 function getShippingValue() {
     const shippingDisplay = document.getElementById('shipping-display');
     const shippingText = shippingDisplay.textContent;
-    
     if (shippingText === '-') return 0;
-    
     const itemTotal = parseFloat(document.getElementById('item-total').textContent.replace('$', '')) || 0;
-    
     if (shippingText.startsWith('%')) {
-        const percentValue = parseFloat(shippingText.replace('%', ''));
-        return itemTotal * percentValue / 100;
+        return itemTotal * parseFloat(shippingText.replace('%', '')) / 100;
     } else if (shippingText.startsWith('$')) {
         return parseFloat(shippingText.replace('$', ''));
     }
-    
     return 0;
 }
 
-// Function to calculate the total price from all line items
-// This will be called from HTMX responses
 function calculateLineItemsTotal() {
-    // This is a placeholder - the actual implementation will depend on how line items are structured
-    // In a real implementation, this would calculate the sum of all line item totals
     let total = 0;
     const lineItems = document.querySelectorAll('[data-line-item-price]');
     lineItems.forEach(item => {
@@ -328,4 +258,4 @@ function calculateLineItemsTotal() {
     return total;
 }
 </script>
-{% endblock %} 
+{% endblock %}

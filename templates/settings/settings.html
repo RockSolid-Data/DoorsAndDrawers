@@ -1,20 +1,21 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="py-8">
-    <div class="bg-white rounded-lg shadow-md p-8 mb-10">
-        <h2 class="text-2xl font-semibold text-gray-800 mb-8 text-center">Settings</h2>
-        
-        <div class="flex flex-col space-y-6">
-            <a href="{% url 'door_settings' %}" class="bg-blue-300 hover:bg-blue-400 text-white font-bold py-4 px-6 rounded-md text-center text-xl transition-colors duration-200">
-                Door Settings
-            </a>
-            
-            <a href="{% url 'drawer_settings' %}" class="bg-green-200 hover:bg-green-300 text-white font-bold py-4 px-6 rounded-md text-center text-xl transition-colors duration-200">
-                Drawer Settings
-            </a>
-            
-        </div>
-    </div>
+<h1 class="text-xl font-bold text-gray-800 mb-4">Settings</h1>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-xl">
+    <a href="{% url 'door_settings' %}" class="bg-white border border-gray-200 rounded-lg p-5 text-center hover:border-indigo-300 hover:shadow-sm transition-all">
+        <svg class="w-8 h-8 mx-auto mb-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+        <h2 class="text-sm font-semibold text-gray-800">Door Settings</h2>
+    </a>
+    
+    <a href="{% url 'drawer_settings' %}" class="bg-white border border-gray-200 rounded-lg p-5 text-center hover:border-indigo-300 hover:shadow-sm transition-all">
+        <svg class="w-8 h-8 mx-auto mb-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+        </svg>
+        <h2 class="text-sm font-semibold text-gray-800">Drawer Settings</h2>
+    </a>
 </div>
-{% endblock %} 
+{% endblock %}

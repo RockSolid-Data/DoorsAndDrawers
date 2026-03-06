@@ -7,7 +7,9 @@ from django.http import HttpResponse, HttpResponseBadRequest
 
 def door_settings(request):
     """
-    Render the door settings page with all door components
+    Render the door settings page with all door components.
+    Returns content-only template for HTMX requests (tab loading),
+    or the full standalone page for direct URL visits.
     """
     styles = Style.objects.all().select_related('panel_type', 'design')
     wood_stocks = WoodStock.objects.all()
@@ -15,8 +17,8 @@ def door_settings(request):
     edge_profiles = EdgeProfile.objects.all()
     panel_rises = PanelRise.objects.all()
     panel_types = PanelType.objects.all()
-    rail_defaults = RailDefaults.objects.first()  # Get the first (should be only one) rail defaults
-    misc_settings = MiscellaneousDoorSettings.objects.first()  # Get the first (should be only one) misc settings
+    rail_defaults = RailDefaults.objects.first()
+    misc_settings = MiscellaneousDoorSettings.objects.first()
     
     context = {
         'styles': styles,
@@ -30,11 +32,15 @@ def door_settings(request):
         'title': 'Door Settings'
     }
     
+    if request.headers.get('HX-Request'):
+        return render(request, 'settings/door_content.html', context)
     return render(request, 'settings/door_settings.html', context)
 
 def drawer_settings(request):
     """
-    Render the drawer settings page with all drawer components
+    Render the drawer settings page with all drawer components.
+    Returns content-only template for HTMX requests (tab loading),
+    or the full standalone page for direct URL visits.
     """
     from ..models.drawer import DrawerWoodStock, DrawerBottomSize, DrawerPricing, DefaultDrawerSettings
     
@@ -51,6 +57,8 @@ def drawer_settings(request):
         'title': 'Drawer Settings'
     }
     
+    if request.headers.get('HX-Request'):
+        return render(request, 'settings/drawer_content.html', context)
     return render(request, 'settings/drawer_settings.html', context)
 
 # Drawer Wood Stock editing views
@@ -982,8 +990,9 @@ def update_rail_defaults(request):
             defaults.bottom = Decimal(request.POST.get('bottom', '2.50'))
             defaults.left = Decimal(request.POST.get('left', '2.50'))
             defaults.right = Decimal(request.POST.get('right', '2.50'))
+            defaults.interior_rail_size = Decimal(request.POST.get('interior_rail_size', '2.50'))
             
-            defaults.full_clean()  # Validate the model
+            defaults.full_clean()
             defaults.save()
         except (ValidationError, ValueError) as e:
             # Return the edit form with error messages

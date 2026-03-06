@@ -1,26 +1,18 @@
 {% load formatting %}
 {% for customer in customers %}
-<tr>
-    <td class="px-6 py-4 whitespace-nowrap">
-        <div class="text-sm font-medium text-gray-900">{{ customer.company_name|title }}</div>
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap">
-        <div class="text-sm text-gray-900">{{ customer.first_name|title }} {{ customer.last_name|title }}</div>
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap">
-        <div class="text-sm text-gray-900">{{ customer.phone|format_phone }}</div>
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap">
-        <div class="text-sm text-gray-900">{{ customer.city|title }}, {{ customer.get_state_display }}</div>
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-        <a href="{% url 'customer_detail' customer.id %}" class="text-blue-600 hover:text-blue-900">View</a>
+<tr class="hover:bg-gray-50">
+    <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">{{ customer.company_name|title }}</td>
+    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{{ customer.first_name|title }} {{ customer.last_name|title }}</td>
+    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{{ customer.phone|format_phone }}</td>
+    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{{ customer.city|title }}, {{ customer.get_state_display }}</td>
+    <td class="px-4 py-2 whitespace-nowrap text-sm text-right">
+        <a href="{% url 'customer_detail' customer.id %}" class="text-indigo-600 hover:text-indigo-800 font-medium">View</a>
     </td>
 </tr>
 {% empty %}
 <tr>
-    <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
-        No customers found. Try a different search term or <a href="{% url 'new_customer' %}" class="text-blue-600 hover:text-blue-900">add a new customer</a>.
+    <td colspan="5" class="px-4 py-6 text-center text-sm text-gray-500">
+        No customers found. Try a different search or <a href="{% url 'new_customer' %}" class="text-indigo-600 hover:text-indigo-800">add a new customer</a>.
     </td>
 </tr>
-{% endfor %} 
+{% endfor %}

@@ -1,29 +1,35 @@
-<tr id="rail-defaults-row">
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-        {{ defaults.top }}
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-        {{ defaults.bottom }}
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-        {{ defaults.left }}
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-        {{ defaults.right }}
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-        {{ defaults.interior_rail_size }}
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        <a href="#" 
-           class="text-indigo-600 hover:text-indigo-900"
-           hx-get="{% url 'edit_rail_defaults' %}"
-           hx-target="#rail-defaults-row"
-           hx-swap="outerHTML"
-           title="Edit">
-            <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<div id="rail-defaults-fields">
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-4">
+        <div>
+            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Top Rail</dt>
+            <dd class="mt-1 text-sm text-gray-900">{{ defaults.top }}"</dd>
+        </div>
+        <div>
+            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Bottom Rail</dt>
+            <dd class="mt-1 text-sm text-gray-900">{{ defaults.bottom }}"</dd>
+        </div>
+        <div>
+            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Left Rail</dt>
+            <dd class="mt-1 text-sm text-gray-900">{{ defaults.left }}"</dd>
+        </div>
+        <div>
+            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Right Rail</dt>
+            <dd class="mt-1 text-sm text-gray-900">{{ defaults.right }}"</dd>
+        </div>
+        <div>
+            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Interior Rail</dt>
+            <dd class="mt-1 text-sm text-gray-900">{{ defaults.interior_rail_size }}"</dd>
+        </div>
+    </div>
+    <div class="mt-4 flex justify-end">
+        <button class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-800 border border-indigo-200 rounded-md hover:bg-indigo-50 transition-colors"
+                hx-get="{% url 'edit_rail_defaults' %}"
+                hx-target="#rail-defaults-fields"
+                hx-swap="outerHTML">
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
             </svg>
-        </a>
-    </td>
-</tr> 
+            Edit
+        </button>
+    </div>
+</div>

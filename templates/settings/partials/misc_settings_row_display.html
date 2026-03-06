@@ -1,18 +1,39 @@
-<tr>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ settings.extra_height }}</td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ settings.extra_width }}</td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ settings.glue_min_width }}</td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ settings.rail_extra }}</td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ settings.drawer_front.name }}</td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ settings.drawer_slab.name }}</td>
-    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-        <button hx-get="{% url 'edit_misc_settings' %}"
-                hx-target="closest tr"
-                class="text-indigo-600 hover:text-indigo-900"
-                title="Edit">
-            <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<div id="misc-settings-fields">
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-4">
+        <div>
+            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Extra Height</dt>
+            <dd class="mt-1 text-sm text-gray-900">{{ settings.extra_height }}"</dd>
+        </div>
+        <div>
+            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Extra Width</dt>
+            <dd class="mt-1 text-sm text-gray-900">{{ settings.extra_width }}"</dd>
+        </div>
+        <div>
+            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Glue Min Width</dt>
+            <dd class="mt-1 text-sm text-gray-900">{{ settings.glue_min_width }}"</dd>
+        </div>
+        <div>
+            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Rail Extra</dt>
+            <dd class="mt-1 text-sm text-gray-900">{{ settings.rail_extra }}"</dd>
+        </div>
+        <div>
+            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Drawer Front Type</dt>
+            <dd class="mt-1 text-sm text-gray-900">{{ settings.drawer_front.name }}</dd>
+        </div>
+        <div>
+            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Drawer Slab Type</dt>
+            <dd class="mt-1 text-sm text-gray-900">{{ settings.drawer_slab.name }}</dd>
+        </div>
+    </div>
+    <div class="mt-4 flex justify-end">
+        <button class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-800 border border-indigo-200 rounded-md hover:bg-indigo-50 transition-colors"
+                hx-get="{% url 'edit_misc_settings' %}"
+                hx-target="#misc-settings-fields"
+                hx-swap="outerHTML">
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
             </svg>
+            Edit
         </button>
-    </td>
-</tr> 
+    </div>
+</div>
