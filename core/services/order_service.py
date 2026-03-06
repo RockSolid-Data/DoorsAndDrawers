@@ -145,6 +145,107 @@ class OrderService:
         return items_count
 
     @staticmethod
+    def update_from_session(order, form_data, session_data):
+        """
+        Update an existing order/quote from form data and session data.
+        Deletes all existing line items and recreates them from the session.
+
+        Returns:
+            tuple: (success, order, error_message)
+        """
+        is_valid, error = OrderService._validate_session_data(form_data, session_data)
+        if not is_valid:
+            return False, None, error
+
+        try:
+            with transaction.atomic():
+                order.customer = form_data['customer']
+                order.billing_address1 = form_data['billing_address1']
+                order.billing_address2 = form_data.get('billing_address2', '')
+                order.order_date = form_data['order_date']
+                order.notes = form_data.get('notes', '')
+
+                order.door_items.all().delete()
+                order.drawer_items.all().delete()
+                order.generic_items.all().delete()
+
+                OrderService._process_line_items(order, session_data.get('items', []))
+                order.calculate_totals()
+                order.save()
+
+                return True, order, None
+
+        except IntegrityError as e:
+            return False, None, f"Data integrity error: {str(e)}"
+        except DatabaseError as e:
+            return False, None, f"Database error: {str(e)}"
+        except Exception as e:
+            return False, None, f"Error updating {'quote' if order.is_quote else 'order'}: {str(e)}"
+
+    @staticmethod
+    def serialize_to_session(order):
+        """
+        Convert an order's DB line items into the session dictionary format
+        used by line_items_table.html. Returns the full session data dict.
+        """
+        items = []
+
+        for item in order.door_items.all().select_related(
+            'wood_stock', 'edge_profile', 'panel_rise', 'style'
+        ):
+            items.append({
+                'type': 'door',
+                'wood_stock': {'id': item.wood_stock_id, 'name': item.wood_stock.name},
+                'edge_profile': {'id': item.edge_profile_id, 'name': item.edge_profile.name},
+                'panel_rise': {'id': item.panel_rise_id, 'name': item.panel_rise.name},
+                'style': {'id': item.style_id, 'name': str(item.style)},
+                'width': str(item.width),
+                'height': str(item.height),
+                'quantity': str(item.quantity),
+                'price_per_unit': str(item.price_per_unit),
+                'total_price': str(item.total_price),
+                'rail_top': str(item.rail_top),
+                'rail_bottom': str(item.rail_bottom),
+                'rail_left': str(item.rail_left),
+                'rail_right': str(item.rail_right),
+                'interior_rail_size': str(item.interior_rail_size),
+                'custom_price': item.custom_price,
+            })
+
+        for item in order.drawer_items.all().select_related('wood_stock', 'bottom'):
+            items.append({
+                'type': 'drawer',
+                'wood_stock': {'id': item.wood_stock_id, 'name': item.wood_stock.name},
+                'bottom': {'id': item.bottom_id, 'name': item.bottom.name},
+                'width': str(item.width),
+                'height': str(item.height),
+                'depth': str(item.depth),
+                'quantity': str(item.quantity),
+                'undermount': item.undermount,
+                'finishing': item.finishing,
+                'price_per_unit': str(item.price_per_unit),
+                'total_price': str(item.total_price),
+                'custom_price': item.custom_price,
+            })
+
+        for item in order.generic_items.all():
+            items.append({
+                'type': 'other',
+                'name': item.name,
+                'quantity': str(item.quantity),
+                'price_per_unit': str(item.price_per_unit),
+                'total_price': str(item.total_price),
+                'custom_price': item.custom_price,
+            })
+
+        return {
+            'customer': str(order.customer_id),
+            'billing_address1': order.billing_address1,
+            'billing_address2': order.billing_address2 or '',
+            'items': items,
+        }
+
+    @staticmethod
     def _create_door_line_item(order, item_data):
         """
         Create a door line item from session data.

@@ -69,7 +69,8 @@ class CustomerForm(forms.ModelForm):
             'phone',
             'fax',
             'notes',
-            'taxable'
+            'taxable',
+            'tax_percentage'
         ]
         widgets = {
             'notes': forms.Textarea(attrs={'rows': 3}),
@@ -126,13 +127,6 @@ class CustomerForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        # Convert names to lowercase if they exist
-        if cleaned_data.get('company_name'):
-            cleaned_data['company_name'] = cleaned_data['company_name'].lower()
-        if cleaned_data.get('first_name'):
-            cleaned_data['first_name'] = cleaned_data['first_name'].lower()
-        if cleaned_data.get('last_name'):
-            cleaned_data['last_name'] = cleaned_data['last_name'].lower()
 
         # Validate percentage values
         if cleaned_data.get('discount_type') == 'PERCENT' and cleaned_data.get('discount_value', 0) > 100:

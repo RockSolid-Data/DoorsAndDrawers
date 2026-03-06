@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from decimal import Decimal, InvalidOperation
 
-from django_htmx.http import retarget
+from django_htmx.http import retarget, reswap
 
 from ..models import Customer
 
@@ -169,14 +169,28 @@ def handle_entity_list(request, base_queryset, template_name, entity_name='items
     return render(request, template_name, context)
 
 
+FORM_CONTAINER_IDS = {
+    'door': '#door-form-container',
+    'drawer': '#drawer-form-container',
+    'other': '#generic-item-form',
+}
+
+FORM_TEMPLATES = {
+    'door': 'door/door_form.html',
+    'drawer': 'drawer/drawer_form.html',
+    'other': 'order/partials/generic_form.html',
+}
+
+
 def render_form_with_errors(request, form, item_type, error_message=None):
     """
     Helper function to render a form with errors and retarget it to the form container.
+    Works for both modal (order page) and inline (quote page) contexts.
     
     Args:
         request: The HTTP request
         form: The form with errors
-        item_type: The type of item ('door', 'drawer', etc.)
+        item_type: The type of item ('door', 'drawer', 'other')
         error_message: Optional error message to add to the form
         
     Returns:
@@ -185,9 +199,11 @@ def render_form_with_errors(request, form, item_type, error_message=None):
     if error_message:
         form.add_error(None, error_message)
         
-    template_name = f"{item_type}/{item_type}_form.html"
+    template_name = FORM_TEMPLATES.get(item_type, f"{item_type}/{item_type}_form.html")
     response = render(request, template_name, {'form': form})
-    return retarget(response, "#door-form-container")
+    target = FORM_CONTAINER_IDS.get(item_type, '#door-form-container')
+    response = retarget(response, target)
+    return reswap(response, 'outerHTML')
 
 
 def process_line_item_form(request, form_class, model_class, item_type, transform_data_func=None):
@@ -280,10 +296,18 @@ def process_line_item_form(request, form_class, model_class, item_type, transfor
             # Return form with error message for data preparation issues
             return render_form_with_errors(request, form, item_type, f'Error preparing item data: {str(e)}')
         
-        # Add the item to the session order
+        # Add or replace the item in the session order
         try:
-            request.session['current_order']['items'].append(session_item)
-            # Mark session as modified
+            edit_index = request.POST.get('edit_index')
+            if edit_index is not None and edit_index != '':
+                idx = int(edit_index)
+                items = request.session['current_order']['items']
+                if 0 <= idx < len(items):
+                    items[idx] = session_item
+                else:
+                    items.append(session_item)
+            else:
+                request.session['current_order']['items'].append(session_item)
             request.session.modified = True
         except Exception as e:
             # Return form with error message for session update issues

@@ -2,10 +2,13 @@ from django import forms
 from ..models import Order
 from django.utils import timezone
 
-class BaseOrderForm(forms.ModelForm):
+
+class OrderForm(forms.ModelForm):
+    is_quote = forms.BooleanField(required=False, widget=forms.HiddenInput())
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if not self.instance.pk:  # Only set default if this is a new instance
+        if not self.instance.pk:
             self.initial['order_date'] = timezone.localdate()
 
     class Meta:
@@ -16,24 +19,17 @@ class BaseOrderForm(forms.ModelForm):
             'billing_address2',
             'order_date',
             'notes',
+            'is_quote',
         ]
         widgets = {
             'order_date': forms.DateInput(attrs={'type': 'date'}),
             'notes': forms.Textarea(attrs={'rows': 3}),
+            'is_quote': forms.HiddenInput(),
         }
 
-class OrderForm(BaseOrderForm):
     def save(self, commit=True):
         instance = super().save(commit=False)
-        instance.is_quote = False
+        instance.is_quote = self.cleaned_data.get('is_quote', False)
         if commit:
             instance.save()
         return instance
-
-class QuoteForm(BaseOrderForm):
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        instance.is_quote = True
-        if commit:
-            instance.save()
-        return instance 

@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.http import HttpResponse
 from ..forms import CustomerForm, CustomerDoorDefaultsForm, CustomerDrawerDefaultsForm
 from ..models import Customer
 from django.db import models
@@ -28,12 +29,6 @@ def customers(request):
         'title': 'Customers'
     })
 
-def customer_detail(request, customer_id):
-    customer = get_object_or_404(Customer, id=customer_id)
-    return render(request, 'customer/customer_detail.html', {
-        'customer': customer,
-        'title': f'Customer: {customer.company_name or "No Company"}'
-    })
 
 def new_customer(request):
     if request.method == 'POST':
@@ -44,7 +39,7 @@ def new_customer(request):
                 request, 
                 f'Customer {customer.company_name or "created"} was successfully created!'
             )
-            return redirect('customer_detail', customer_id=customer.id)
+            return redirect('edit_customer', customer_id=customer.id)
     else:
         form = CustomerForm()
     
@@ -55,19 +50,44 @@ def new_customer(request):
 
 def edit_customer(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
+    door_defaults_service = DoorDefaultsService()
+
     if request.method == 'POST':
         form = CustomerForm(request.POST, instance=customer)
-        if form.is_valid():
+        door_form = CustomerDoorDefaultsForm(request.POST)
+        drawer_form = CustomerDrawerDefaultsForm(request.POST)
+
+        if form.is_valid() and door_form.is_valid() and drawer_form.is_valid():
             customer = form.save()
+
+            door_data = door_defaults_service.prepare_defaults_for_storage(door_form.cleaned_data)
+            customer.door_defaults = door_data
+
+            drawer_data = {}
+            for key, value in drawer_form.cleaned_data.items():
+                if value is not None:
+                    if hasattr(value, 'pk'):
+                        drawer_data[key] = value.pk
+                    else:
+                        drawer_data[key] = value
+            customer.drawer_defaults = drawer_data
+
+            customer.save(update_fields=['door_defaults', 'drawer_defaults'])
             messages.success(request, 'Customer updated successfully!')
-            return redirect('customer_detail', customer_id=customer.id)
+            return redirect('customers')
     else:
         form = CustomerForm(instance=customer)
-    
+        door_form = CustomerDoorDefaultsForm(initial=door_defaults_service.apply_defaults_to_form(customer))
+        drawer_form = CustomerDrawerDefaultsForm(initial=customer.get_drawer_defaults())
+
     return render(request, 'customer/customer_form.html', {
         'form': form,
+        'customer': customer,
+        'door_form': door_form,
+        'drawer_form': drawer_form,
+        'global_rail_defaults': door_defaults_service.global_defaults,
         'title': f'Edit Customer: {customer.company_name or "No Company"}',
-        'is_edit': True
+        'editing': True
     })
 
 def delete_customer(request, customer_id):
@@ -75,6 +95,11 @@ def delete_customer(request, customer_id):
     if request.method == 'POST':
         customer.delete()
         messages.success(request, 'Customer deleted successfully.')
+        if request.headers.get('HX-Request'):
+            from django.urls import reverse
+            response = HttpResponse(status=200)
+            response['HX-Redirect'] = reverse('customers')
+            return response
         return redirect('customers')
     
     return render(request, 'customer/customer_confirm_delete.html', {
@@ -115,56 +140,3 @@ def customer_search(request):
         'search_query': search_query,
         'paginator': paginator
     })
-
-def customer_defaults(request, customer_id):
-    customer = get_object_or_404(Customer, id=customer_id)
-    door_defaults_service = DoorDefaultsService()
-    
-    if request.method == 'POST':
-        if 'door_form' in request.POST:
-            door_form = CustomerDoorDefaultsForm(request.POST)
-            drawer_form = CustomerDrawerDefaultsForm(initial=customer.get_drawer_defaults())
-            
-            if door_form.is_valid():
-                # Use service to prepare data for storage
-                door_data = door_defaults_service.prepare_defaults_for_storage(door_form.cleaned_data)
-                
-                # Update customer's door_defaults
-                customer.door_defaults = door_data
-                customer.save(update_fields=['door_defaults'])
-                
-                messages.success(request, "Door defaults updated successfully")
-                return redirect('customer_defaults', customer_id=customer.id)
-        else:
-            door_form = CustomerDoorDefaultsForm(initial=door_defaults_service.apply_defaults_to_form(customer))
-            drawer_form = CustomerDrawerDefaultsForm(request.POST)
-            
-            if drawer_form.is_valid():
-                # Convert model instances to IDs for JSON serialization
-                drawer_data = {}
-                for key, value in drawer_form.cleaned_data.items():
-                    if value is not None:
-                        if hasattr(value, 'pk'):  # If it's a model instance
-                            drawer_data[key] = value.pk
-                        else:  # For boolean fields and other primitives
-                            drawer_data[key] = value
-                
-                # Update customer's drawer_defaults
-                customer.drawer_defaults = drawer_data
-                customer.save(update_fields=['drawer_defaults'])
-                messages.success(request, "Drawer defaults updated successfully")
-                return redirect('customer_defaults', customer_id=customer.id)
-    else:
-        # For GET request, initialize the forms
-        door_form = CustomerDoorDefaultsForm(initial=door_defaults_service.apply_defaults_to_form(customer))
-        drawer_form = CustomerDrawerDefaultsForm(initial=customer.get_drawer_defaults())
-    
-    context = {
-        'customer': customer,
-        'door_form': door_form,
-        'drawer_form': drawer_form,
-        'title': f'Defaults for {customer.company_name.title() if customer.company_name else "No Company"}',
-        'global_rail_defaults': door_defaults_service.global_defaults
-    }
-    
-    return render(request, 'customer/customer_defaults.html', context) 

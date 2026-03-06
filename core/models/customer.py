@@ -26,6 +26,13 @@ class Customer(BaseModel):
         verbose_name="Taxable",
         help_text="Whether this customer should be charged tax on orders"
     )
+    tax_percentage = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0,
+        verbose_name="Tax Percentage",
+        help_text="Tax percentage to apply to taxable orders"
+    )
     address_line1 = models.CharField(
         max_length=255,
         verbose_name="Address Line 1",
@@ -110,22 +117,6 @@ class Customer(BaseModel):
         return self.orders.filter(is_quote=False)
 
     def save(self, *args, **kwargs):
-        # Convert names to lowercase if they exist
-        if self.company_name:
-            self.company_name = self.company_name.lower()
-        if self.first_name:
-            self.first_name = self.first_name.lower()
-        if self.last_name:
-            self.last_name = self.last_name.lower()
-        if self.city:
-            self.city = self.city.lower()
-        if self.address_line1:
-            self.address_line1 = self.address_line1.lower()
-        if self.address_line2:
-            self.address_line2 = self.address_line2.lower()
-        if self.notes:
-            self.notes = self.notes.lower()
-
         # Strip any formatting from phone/fax if they exist
         if self.phone:
             if not self.phone.isdigit():

@@ -3,178 +3,660 @@
 
 {% block content %}
 <div id="order-container">
-    <h1 class="text-xl font-bold text-gray-800 mb-4">{{ title }}</h1>
+    <div class="flex justify-between items-center mb-4">
+        <div class="flex items-center gap-3">
+            <h1 class="text-xl font-bold text-gray-800">{{ title }}</h1>
+            {% if is_quote %}
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">Quote</span>
+            {% else %}
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-200">Order</span>
+            {% endif %}
+        </div>
+        <div class="flex gap-2">
+            {% if is_quote and editing %}
+            <button type="button" hx-get="{% url 'convert_to_order' order.id %}" hx-target="#modal"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded text-white bg-green-600 hover:bg-green-700">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                Convert to Order
+            </button>
+            {% endif %}
+            <button type="submit" form="order-form" onclick="document.getElementById('form-action').value='save_and_print'"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold rounded text-white bg-blue-600 hover:bg-blue-700">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                {% if editing %}Update{% else %}Save{% endif %} &amp; Print
+            </button>
+            <button type="submit" form="order-form"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold rounded text-white bg-indigo-600 hover:bg-indigo-700">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                {% if editing %}Update{% else %}Save{% endif %} {% if is_quote %}Quote{% else %}Order{% endif %}
+            </button>
+            <a href="{% if is_quote %}{% url 'quotes' %}{% else %}{% url 'orders' %}{% endif %}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded border border-gray-300 text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                Cancel
+            </a>
+        </div>
+    </div>
 
-    <form id="order-form" method="post" action="{% url 'new_order' %}">
+    <form id="order-form" method="post" action="{% if form_action %}{{ form_action }}{% else %}{% url 'new_order' %}{% endif %}">
         {% csrf_token %}
-        
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
-            <div class="lg:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-3">
-                <div class="bg-white border border-gray-200 rounded-lg p-4">
-                    <h2 class="text-sm font-bold text-indigo-700 uppercase tracking-wide mb-3">Customer Info</h2>
+        {{ form.is_quote.as_hidden }}
+
+        <!-- ===== TOP SECTION: Customer Info + Order Summary ===== -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+
+            <!-- Customer Info -->
+            <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                <div class="bg-gradient-to-r from-indigo-600 to-indigo-500 px-4 py-2.5">
+                    <h2 class="text-sm font-semibold text-white uppercase tracking-wide">Customer Information</h2>
+                </div>
+                <div class="p-4">
                     {% if form.non_field_errors %}
                         <div class="mb-3 p-2 rounded bg-red-50 text-red-700 border border-red-200 text-sm">
-                            {% for error in form.non_field_errors %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
+                            {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
                         </div>
                     {% endif %}
 
-                    <div class="space-y-2">
-                        {% for field in form %}
-                            {% if field.name == 'customer' or field.name == 'billing_address1' or field.name == 'billing_address2' or field.name == 'order_date' or field.name == 'notes' %}
-                                <div>
-                                    <label for="{{ field.id_for_label }}" class="block text-xs font-medium text-gray-600 mb-0.5">
-                                        {{ field.label }}
-                                        {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
-                                    </label>
-                                    
-                                    {% if field.name == 'customer' %}
-                                        {% render_field field class="block w-full px-2.5 py-1.5 text-sm rounded" onchange="updateAddresses(this.value)" %}
-                                    {% elif field.name == 'notes' %}
-                                        {% render_field field class="block w-full px-2.5 py-1.5 text-sm rounded" rows="2" placeholder="Special instructions or details" %}
-                                    {% else %}
-                                        {% if field.errors %}
-                                            {% render_field field class="block w-full px-2.5 py-1.5 text-sm rounded border-red-400" %}
-                                            {% for error in field.errors %}
-                                                <p class="mt-0.5 text-xs text-red-600">{{ error }}</p>
-                                            {% endfor %}
-                                        {% else %}
-                                            {% render_field field class="block w-full px-2.5 py-1.5 text-sm rounded" %}
-                                        {% endif %}
-                                    {% endif %}
-                                </div>
+                    {% for field in form %}
+                        {% if field.name != 'customer' and field.name != 'billing_address1' and field.name != 'billing_address2' and field.name != 'order_date' and field.name != 'notes' and field.name != 'is_quote' %}
+                            {% render_field field type="hidden" %}
+                        {% endif %}
+                    {% endfor %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.customer.id_for_label }}" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                            Customer {% if form.customer.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {% render_field form.customer class="block w-full px-3 py-2 text-sm rounded-md" onchange="updateAddresses(this.value)" %}
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <label for="{{ form.billing_address1.id_for_label }}" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                                Address Line 1
+                            </label>
+                            {% if form.billing_address1.errors %}
+                                {% render_field form.billing_address1 class="block w-full px-3 py-2 text-sm rounded-md border-red-400" %}
+                                {% for error in form.billing_address1.errors %}<p class="mt-0.5 text-xs text-red-600">{{ error }}</p>{% endfor %}
                             {% else %}
-                                {% render_field field type="hidden" %}
+                                {% render_field form.billing_address1 class="block w-full px-3 py-2 text-sm rounded-md" %}
                             {% endif %}
-                        {% endfor %}
+                        </div>
+                        <div>
+                            <label for="{{ form.billing_address2.id_for_label }}" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                                Address Line 2
+                            </label>
+                            {% if form.billing_address2.errors %}
+                                {% render_field form.billing_address2 class="block w-full px-3 py-2 text-sm rounded-md border-red-400" %}
+                                {% for error in form.billing_address2.errors %}<p class="mt-0.5 text-xs text-red-600">{{ error }}</p>{% endfor %}
+                            {% else %}
+                                {% render_field form.billing_address2 class="block w-full px-3 py-2 text-sm rounded-md" %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <label for="{{ form.order_date.id_for_label }}" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                                {% if is_quote %}Quote{% else %}Order{% endif %} Date {% if form.order_date.field.required %}<span class="text-red-500">*</span>{% endif %}
+                            </label>
+                            {% if form.order_date.errors %}
+                                {% render_field form.order_date class="block w-full px-3 py-2 text-sm rounded-md border-red-400" %}
+                                {% for error in form.order_date.errors %}<p class="mt-0.5 text-xs text-red-600">{{ error }}</p>{% endfor %}
+                            {% else %}
+                                {% render_field form.order_date class="block w-full px-3 py-2 text-sm rounded-md" %}
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.notes.id_for_label }}" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                                Notes
+                            </label>
+                            {% render_field form.notes class="block w-full px-3 py-2 text-sm rounded-md" rows="2" placeholder="Special instructions or details" %}
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="bg-white border border-gray-200 rounded-lg p-4">
-                    <h2 class="text-sm font-bold text-indigo-700 uppercase tracking-wide mb-3">Order Summary</h2>
+            <!-- Order Summary -->
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
+                <div class="bg-gradient-to-r from-gray-700 to-gray-600 px-4 py-2.5">
+                    <h2 class="text-sm font-semibold text-white uppercase tracking-wide">{% if is_quote %}Quote{% else %}Order{% endif %} Summary</h2>
+                </div>
+                <div class="p-4 flex-1 flex flex-col justify-between">
                     <table class="w-full text-sm">
-                        <tbody class="divide-y divide-gray-100">
-                            <tr>
-                                <td class="py-1.5 font-medium text-gray-700">Item Total</td>
-                                <td class="py-1.5 text-right text-gray-900" id="item-total">$0.00</td>
+                        <tbody>
+                            <tr class="border-b border-gray-100">
+                                <td class="py-2 font-medium text-gray-600">Item Total</td>
+                                <td class="py-2 text-right font-semibold text-gray-800" id="item-total">$0.00</td>
                             </tr>
-                            <tr>
-                                <td class="py-1.5 font-medium text-gray-700">Discount</td>
-                                <td class="py-1.5 text-right text-gray-900" id="discount-display">-</td>
+                            <tr class="border-b border-gray-100">
+                                <td class="py-2 font-medium text-gray-600">Discount</td>
+                                <td class="py-2 text-right text-gray-800" id="discount-display">-</td>
                             </tr>
-                            <tr>
-                                <td class="py-1.5 font-medium text-gray-700">Surcharge</td>
-                                <td class="py-1.5 text-right text-gray-900" id="surcharge-display">-</td>
+                            <tr class="border-b border-gray-100">
+                                <td class="py-2 font-medium text-gray-600">Surcharge</td>
+                                <td class="py-2 text-right text-gray-800" id="surcharge-display">-</td>
                             </tr>
-                            <tr>
-                                <td class="py-1.5 font-medium text-gray-700">Shipping</td>
-                                <td class="py-1.5 text-right text-gray-900" id="shipping-display">-</td>
+                            <tr class="border-b border-gray-100">
+                                <td class="py-2 font-medium text-gray-600">Shipping</td>
+                                <td class="py-2 text-right text-gray-800" id="shipping-display">-</td>
                             </tr>
-                            <tr>
-                                <td class="py-1.5 font-medium text-gray-700">Sub Total</td>
-                                <td class="py-1.5 text-right text-gray-900" id="sub-total-display">$0.00</td>
+                            <tr class="border-b border-gray-100">
+                                <td class="py-2 font-medium text-gray-600">Sub Total</td>
+                                <td class="py-2 text-right font-semibold text-gray-800" id="sub-total-display">$0.00</td>
                             </tr>
-                            <tr>
-                                <td class="py-1.5 font-medium text-gray-700">Tax</td>
-                                <td class="py-1.5 text-right text-gray-900" id="tax-total-display">$0.00</td>
-                            </tr>
-                            <tr class="border-t-2 border-gray-300">
-                                <td class="py-2 font-bold text-gray-900">Total</td>
-                                <td class="py-2 text-right font-bold text-gray-900 text-base" id="total-display">$0.00</td>
+                            <tr class="border-b border-gray-100">
+                                <td class="py-2 font-medium text-gray-600">Tax <span id="tax-percent-label"></span></td>
+                                <td class="py-2 text-right text-gray-800" id="tax-total-display">$0.00</td>
                             </tr>
                         </tbody>
                     </table>
-                </div>
-            </div>
-
-            <div class="bg-white border border-gray-200 rounded-lg p-4" style="min-height: 350px;">
-                <div class="flex items-center justify-between mb-3">
-                    <h2 class="text-sm font-bold text-indigo-700 uppercase tracking-wide">Add Line Item</h2>
-                    <div class="flex gap-1.5">
-                        <button type="button" 
-                                class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded text-white bg-indigo-600 hover:bg-indigo-700"
-                                hx-get="{% url 'door_form' %}"
-                                hx-target="#door-form-container"
-                                hx-swap="innerHTML">
-                            <svg class="h-3.5 w-3.5 mr-0.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/></svg>
-                            Door
-                        </button>
-                        <button type="button" 
-                                class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded text-white bg-green-600 hover:bg-green-700"
-                                hx-get="{% url 'drawer_form' %}"
-                                hx-target="#door-form-container"
-                                hx-swap="innerHTML">
-                            <svg class="h-3.5 w-3.5 mr-0.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/></svg>
-                            Drawer
-                        </button>
-                        <button type="button" 
-                                class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded text-white bg-amber-600 hover:bg-amber-700"
-                                hx-get="{% url 'generic_item_form' %}"
-                                hx-target="#door-form-container"
-                                hx-swap="innerHTML">
-                            <svg class="h-3.5 w-3.5 mr-0.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/></svg>
-                            Other
-                        </button>
-                    </div>
-                </div>
-                <div id="door-form-container" class="overflow-auto" style="max-height: 300px;">
-                    {% csrf_token %}
-                </div>
-            </div>
-
-            <div class="bg-white border border-gray-200 rounded-lg p-4" style="min-height: 350px;">
-                <h2 class="text-sm font-bold text-indigo-700 uppercase tracking-wide mb-3">Line Items</h2>
-                <div id="line-items-container" class="overflow-auto" style="max-height: 300px;">
-                    <div class="text-center py-6 text-sm text-gray-400">
-                        No items added yet
+                    <div class="mt-3 pt-3 border-t-2 border-indigo-200 flex justify-between items-center">
+                        <span class="text-base font-bold text-gray-900">Total</span>
+                        <span class="text-lg font-bold text-indigo-700" id="total-display">$0.00</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="flex justify-end gap-3 pt-4">
-            <a href="{% url 'orders' %}" class="px-4 py-2 text-sm font-medium rounded border border-gray-300 text-gray-700 bg-white hover:bg-gray-50">
-                Cancel
-            </a>
-            <button type="submit" class="px-4 py-2 text-sm font-medium rounded text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm">
-                Save Order
+        <!-- ===== LINE ITEMS SECTION (full width) ===== -->
+        <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden mb-4">
+            <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Line Items</h2>
+                <div class="flex gap-2">
+                    <button type="button" onclick="openItemModal('door')"
+                            class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-md text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-colors">
+                        <svg class="h-3.5 w-3.5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                        Door
+                    </button>
+                    <button type="button" onclick="openItemModal('drawer')"
+                            class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-md text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-colors">
+                        <svg class="h-3.5 w-3.5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                        Drawer
+                    </button>
+                    <button type="button" onclick="openItemModal('other')"
+                            class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-md text-white bg-amber-600 hover:bg-amber-700 shadow-sm transition-colors">
+                        <svg class="h-3.5 w-3.5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                        Other
+                    </button>
+                </div>
+            </div>
+            <div id="line-items-container" class="overflow-auto" style="min-height: 120px;">
+                {% if items %}
+                    {% include 'door/line_items_table.html' %}
+                {% else %}
+                <div class="text-center py-8 text-sm text-gray-400">
+                    No items added yet
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <input type="hidden" name="action" id="form-action" value="save">
+
+        {% if editing %}
+        <div class="flex justify-start mt-4">
+            <button type="button" hx-get="{% url 'delete_order' order.id %}" hx-target="#modal"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 transition-colors">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                Delete {% if is_quote %}Quote{% else %}Order{% endif %}
             </button>
         </div>
+        {% endif %}
     </form>
 </div>
 
+<!-- ===== MODAL: Add Door ===== -->
+<div id="door-modal" class="modal-overlay" onclick="if(event.target===this)closeItemModal('door')">
+    <div class="modal-card">
+        <div class="flex items-center justify-between px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-indigo-600 to-indigo-500 rounded-t-xl">
+            <h3 class="text-sm font-semibold text-white uppercase tracking-wide">Add Door</h3>
+            <button type="button" onclick="closeItemModal('door')" class="text-white/80 hover:text-white">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div id="door-last-item" class="hidden px-5 py-3 bg-indigo-100 border-b-2 border-indigo-300 text-sm text-indigo-900 flex items-center gap-2">
+            <svg class="w-4 h-4 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span class="font-bold text-indigo-700 uppercase text-xs tracking-wider">Last Added:</span>
+            <span id="door-last-item-text" class="font-medium"></span>
+        </div>
+        <div id="door-modal-body" class="p-5">
+            <div class="text-center py-8 text-sm text-gray-400">Loading...</div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL: Add Drawer ===== -->
+<div id="drawer-modal" class="modal-overlay" onclick="if(event.target===this)closeItemModal('drawer')">
+    <div class="modal-card">
+        <div class="flex items-center justify-between px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-emerald-600 to-emerald-500 rounded-t-xl">
+            <h3 class="text-sm font-semibold text-white uppercase tracking-wide">Add Drawer</h3>
+            <button type="button" onclick="closeItemModal('drawer')" class="text-white/80 hover:text-white">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div id="drawer-last-item" class="hidden px-5 py-3 bg-emerald-100 border-b-2 border-emerald-300 text-sm text-emerald-900 flex items-center gap-2">
+            <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span class="font-bold text-emerald-700 uppercase text-xs tracking-wider">Last Added:</span>
+            <span id="drawer-last-item-text" class="font-medium"></span>
+        </div>
+        <div id="drawer-modal-body" class="p-5">
+            <div class="text-center py-8 text-sm text-gray-400">Loading...</div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL: Add Other ===== -->
+<div id="other-modal" class="modal-overlay" onclick="if(event.target===this)closeItemModal('other')">
+    <div class="modal-card" style="max-width:500px">
+        <div class="flex items-center justify-between px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-amber-600 to-amber-500 rounded-t-xl">
+            <h3 class="text-sm font-semibold text-white uppercase tracking-wide">Add Miscellaneous Item</h3>
+            <button type="button" onclick="closeItemModal('other')" class="text-white/80 hover:text-white">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div id="other-last-item" class="hidden px-5 py-3 bg-amber-100 border-b-2 border-amber-300 text-sm text-amber-900 flex items-center gap-2">
+            <svg class="w-4 h-4 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span class="font-bold text-amber-700 uppercase text-xs tracking-wider">Last Added:</span>
+            <span id="other-last-item-text" class="font-medium"></span>
+        </div>
+        <div id="other-modal-body" class="p-5">
+            <div class="text-center py-8 text-sm text-gray-400">Loading...</div>
+        </div>
+    </div>
+</div>
+
 <script>
+// ── Modal management ───────────────────────────────────────
+const modalLoaded = { door: false, drawer: false, other: false };
+const modalUrls = {
+    door: '{% url "door_form" %}',
+    drawer: '{% url "drawer_form" %}',
+    other: '{% url "generic_item_form" %}'
+};
+var editingIndex = null;
+
+function openItemModal(type) {
+    clearEditState(type);
+    const overlay = document.getElementById(type + '-modal');
+    overlay.classList.add('active');
+
+    if (!modalLoaded[type]) {
+        htmx.ajax('GET', modalUrls[type], { target: '#' + type + '-modal-body', swap: 'innerHTML' }).then(function() {
+            modalLoaded[type] = true;
+            restoreLocalStorage(type);
+            setupEnterNav(type);
+            focusFirstDimension(type);
+        });
+    } else {
+        focusFirstDimension(type);
+    }
+}
+
+function closeItemModal(type) {
+    document.getElementById(type + '-modal').classList.remove('active');
+    clearEditState(type);
+}
+
+// ── Edit line item ─────────────────────────────────────────
+function editLineItem(type, index) {
+    fetch('{% url "get_line_item" 0 %}'.replace('/0/', '/' + index + '/'))
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            editingIndex = index;
+            var overlay = document.getElementById(type + '-modal');
+            overlay.classList.add('active');
+            var lastBar = document.getElementById(type + '-last-item');
+            if (lastBar) lastBar.classList.add('hidden');
+
+            function doPopulate() {
+                populateFormFields(type, data);
+                addEditIndex(type, index);
+                setupEnterNav(type);
+                focusFirstDimension(type);
+            }
+
+            if (!modalLoaded[type]) {
+                htmx.ajax('GET', modalUrls[type], { target: '#' + type + '-modal-body', swap: 'innerHTML' }).then(function() {
+                    modalLoaded[type] = true;
+                    doPopulate();
+                });
+            } else {
+                doPopulate();
+            }
+        });
+}
+
+function populateFormFields(type, data) {
+    var body = document.getElementById(type + '-modal-body');
+    if (!body) return;
+
+    if (type === 'door') {
+        setFieldValue(body, 'wood_stock', data.wood_stock ? data.wood_stock.id : '');
+        setFieldValue(body, 'style', data.style ? data.style.id : '');
+        setFieldValue(body, 'edge_profile', data.edge_profile ? data.edge_profile.id : '');
+        setFieldValue(body, 'panel_rise', data.panel_rise ? data.panel_rise.id : '');
+        setFieldValue(body, 'rail_top', data.rail_top || '');
+        setFieldValue(body, 'rail_bottom', data.rail_bottom || '');
+        setFieldValue(body, 'rail_left', data.rail_left || '');
+        setFieldValue(body, 'rail_right', data.rail_right || '');
+        setFieldValue(body, 'quantity', data.quantity || '');
+        setFieldValue(body, 'width', data.width || '');
+        setFieldValue(body, 'height', data.height || '');
+        if (data.custom_price) {
+            var cb = body.querySelector('[name="custom_price"]');
+            if (cb) { cb.checked = true; cb.dispatchEvent(new Event('change')); }
+            setFieldValue(body, 'price_per_unit_manual', data.price_per_unit || '');
+        } else {
+            var cb = body.querySelector('[name="custom_price"]');
+            if (cb) { cb.checked = false; cb.dispatchEvent(new Event('change')); }
+        }
+    } else if (type === 'drawer') {
+        setFieldValue(body, 'wood_stock', data.wood_stock ? data.wood_stock.id : '');
+        setFieldValue(body, 'bottom', data.bottom ? data.bottom.id : '');
+        setFieldValue(body, 'quantity', data.quantity || '');
+        setFieldValue(body, 'height', data.height || '');
+        setFieldValue(body, 'width', data.width || '');
+        setFieldValue(body, 'depth', data.depth || '');
+        setCheckbox(body, 'undermount', data.undermount);
+        setCheckbox(body, 'finishing', data.finishing);
+        if (data.custom_price) {
+            var cb = body.querySelector('[name="custom_price"]');
+            if (cb) { cb.checked = true; cb.dispatchEvent(new Event('change')); }
+            setFieldValue(body, 'price_per_unit_manual', data.price_per_unit || '');
+        } else {
+            var cb = body.querySelector('[name="custom_price"]');
+            if (cb) { cb.checked = false; cb.dispatchEvent(new Event('change')); }
+        }
+    } else if (type === 'other') {
+        setFieldValue(body, 'name', data.name || '');
+        setFieldValue(body, 'price_per_unit', data.price_per_unit || '');
+        setFieldValue(body, 'quantity', data.quantity || '');
+    }
+}
+
+function setFieldValue(container, name, value) {
+    var el = container.querySelector('[name="' + name + '"]');
+    if (!el) return;
+    if (el.tomselect) {
+        el.tomselect.setValue(value, true);
+    } else {
+        el.value = value;
+    }
+}
+
+function setCheckbox(container, name, value) {
+    var el = container.querySelector('[name="' + name + '"]');
+    if (el) el.checked = !!value;
+}
+
+function addEditIndex(type, index) {
+    var containerId = type === 'door' ? 'door-form-container' :
+                      type === 'drawer' ? 'drawer-form-container' : 'generic-item-form';
+    var container = document.getElementById(containerId);
+    if (!container) return;
+
+    var existing = container.querySelector('input[name="edit_index"]');
+    if (existing) existing.remove();
+
+    var input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'edit_index';
+    input.value = index;
+    container.appendChild(input);
+
+    var btn = container.querySelector('[data-add-button]');
+    if (btn) {
+        if (!btn.dataset.originalText) btn.dataset.originalText = btn.textContent.trim();
+        btn.textContent = 'Update Item';
+    }
+}
+
+function clearEditState(type) {
+    var containerId = type === 'door' ? 'door-form-container' :
+                      type === 'drawer' ? 'drawer-form-container' : 'generic-item-form';
+    var container = document.getElementById(containerId);
+    if (container) {
+        var existing = container.querySelector('input[name="edit_index"]');
+        if (existing) existing.remove();
+        var btn = container.querySelector('[data-add-button]');
+        if (btn && btn.dataset.originalText) {
+            btn.textContent = btn.dataset.originalText;
+            delete btn.dataset.originalText;
+        }
+    }
+    editingIndex = null;
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        ['door', 'drawer', 'other'].forEach(function(t) { closeItemModal(t); });
+    }
+});
+
+// ── Enter-key navigation ───────────────────────────────────
+function setupEnterNav(type) {
+    const body = document.getElementById(type + '-modal-body');
+    if (!body) return;
+    const fields = body.querySelectorAll('[data-enter-order]');
+    fields.forEach(function(field) {
+        field.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const order = parseInt(this.getAttribute('data-enter-order'));
+                const next = body.querySelector('[data-enter-order="' + (order + 1) + '"]');
+                if (next) {
+                    next.focus();
+                    next.select();
+                } else {
+                    // last field — trigger add
+                    const btn = body.querySelector('[data-add-button]');
+                    if (btn) btn.click();
+                }
+            }
+        });
+    });
+}
+
+function focusFirstDimension(type) {
+    setTimeout(function() {
+        const body = document.getElementById(type + '-modal-body');
+        if (!body) return;
+        const first = body.querySelector('[data-enter-order="1"]');
+        if (first) { first.focus(); first.select(); }
+    }, 100);
+}
+
+// ── After successful add — clear dimensions, show last item ─
+let activeModalType = null;
+
+document.addEventListener('htmx:beforeRequest', function(e) {
+    const trigger = e.detail.elt;
+    if (trigger.closest('#door-modal-body')) activeModalType = 'door';
+    else if (trigger.closest('#drawer-modal-body')) activeModalType = 'drawer';
+    else if (trigger.closest('#other-modal-body')) activeModalType = 'other';
+    else activeModalType = null;
+});
+
+document.addEventListener('htmx:afterSwap', function(e) {
+    var targetId = e.detail.target.id;
+
+    if (targetId === 'line-items-container' && activeModalType) {
+        if (editingIndex !== null) {
+            closeItemModal(activeModalType);
+        } else {
+            handlePostAdd(activeModalType);
+        }
+        var newTotal = calculateLineItemsTotal();
+        if (typeof updateItemTotal === 'function') updateItemTotal(newTotal);
+    }
+
+    // Re-setup Enter nav after form error re-renders (outerHTML swap replaces elements)
+    var formToModal = {
+        'door-form-container': 'door',
+        'drawer-form-container': 'drawer',
+        'generic-item-form': 'other'
+    };
+    if (formToModal[targetId]) {
+        setupEnterNav(formToModal[targetId]);
+    }
+});
+
+function handlePostAdd(type) {
+    const body = document.getElementById(type + '-modal-body');
+    if (!body) return;
+
+    // Capture last-item info before clearing
+    updateLastItem(type, body);
+
+    // Save options to localStorage
+    saveLocalStorage(type, body);
+
+    // Clear dimension fields
+    const clearFields = body.querySelectorAll('[data-clear-on-add]');
+    clearFields.forEach(function(f) { f.value = ''; });
+
+    // Clear validation error messages left over from a prior failed submit
+    body.querySelectorAll('div.text-red-500.text-xs').forEach(function(el) { el.remove(); });
+    body.querySelectorAll('div.bg-red-50').forEach(function(el) { el.remove(); });
+
+    // Re-focus first dimension
+    focusFirstDimension(type);
+}
+
+// ── Last Item display ──────────────────────────────────────
+function updateLastItem(type, body) {
+    const container = document.getElementById(type + '-last-item');
+    const textEl = document.getElementById(type + '-last-item-text');
+    if (!container || !textEl) return;
+
+    let parts = [];
+    if (type === 'door') {
+        const ws = body.querySelector('[name="wood_stock"]');
+        const st = body.querySelector('[name="style"]');
+        const qty = body.querySelector('[name="quantity"]');
+        const w = body.querySelector('[name="width"]');
+        const h = body.querySelector('[name="height"]');
+        if (ws) parts.push(ws.options[ws.selectedIndex]?.text || '');
+        if (st) parts.push(st.options[st.selectedIndex]?.text || '');
+        if (qty) parts.push('Qty: ' + qty.value);
+        if (w && h) parts.push(w.value + ' x ' + h.value);
+    } else if (type === 'drawer') {
+        const ws = body.querySelector('[name="wood_stock"]');
+        const qty = body.querySelector('[name="quantity"]');
+        const h = body.querySelector('[name="height"]');
+        const w = body.querySelector('[name="width"]');
+        const d = body.querySelector('[name="depth"]');
+        if (ws) parts.push(ws.options[ws.selectedIndex]?.text || '');
+        if (qty) parts.push('Qty: ' + qty.value);
+        if (h && w && d) parts.push(h.value + ' x ' + w.value + ' x ' + d.value);
+    } else if (type === 'other') {
+        const n = body.querySelector('[name="name"]');
+        const p = body.querySelector('[name="price_per_unit"]');
+        const qty = body.querySelector('[name="quantity"]');
+        if (n) parts.push(n.value);
+        if (p) parts.push('$' + p.value);
+        if (qty) parts.push('Qty: ' + qty.value);
+    }
+
+    textEl.textContent = parts.filter(Boolean).join('  ·  ');
+    container.classList.remove('hidden');
+}
+
+// ── localStorage persistence ───────────────────────────────
+function saveLocalStorage(type, body) {
+    const data = {};
+    if (type === 'door') {
+        ['wood_stock', 'style', 'edge_profile', 'panel_rise', 'rail_top', 'rail_bottom', 'rail_left', 'rail_right'].forEach(function(name) {
+            const el = body.querySelector('[name="' + name + '"]');
+            if (el) data[name] = el.value;
+        });
+        const cp = body.querySelector('[name="custom_price"]');
+        if (cp) data['custom_price'] = cp.checked;
+    } else if (type === 'drawer') {
+        ['wood_stock', 'bottom'].forEach(function(name) {
+            const el = body.querySelector('[name="' + name + '"]');
+            if (el) data[name] = el.value;
+        });
+        ['undermount', 'finishing'].forEach(function(name) {
+            const el = body.querySelector('[name="' + name + '"]');
+            if (el) data[name] = el.checked;
+        });
+    }
+    if (Object.keys(data).length) {
+        localStorage.setItem('dd_' + type + '_options', JSON.stringify(data));
+    }
+}
+
+function restoreLocalStorage(type) {
+    const raw = localStorage.getItem('dd_' + type + '_options');
+    if (!raw) return;
+    try {
+        const data = JSON.parse(raw);
+        const body = document.getElementById(type + '-modal-body');
+        if (!body) return;
+        Object.keys(data).forEach(function(name) {
+            const el = body.querySelector('[name="' + name + '"]');
+            if (!el) return;
+            if (el.type === 'checkbox') {
+                el.checked = !!data[name];
+            } else if (el.tomselect) {
+                el.tomselect.setValue(data[name], true);
+            } else {
+                el.value = data[name];
+            }
+        });
+    } catch(e) { /* ignore parse errors */ }
+}
+
+// Clear localStorage on fresh page load
+localStorage.removeItem('dd_door_options');
+localStorage.removeItem('dd_drawer_options');
+
+// ── Order calculations ──────────────────────────────────────
+var customerTaxable = false;
+var customerTaxPercent = 0;
+
 function updateAddresses(customerId) {
-    fetch(`/orders/get-customer-address/?customer=${customerId}`)
-        .then(response => response.json())
-        .then(data => {
+    fetch('/orders/get-customer-address/?customer=' + customerId)
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
             document.getElementById('id_billing_address1').value = data.addresses.address1;
             document.getElementById('id_billing_address2').value = data.addresses.address2;
+            document.getElementById('id_notes').value = data.notes;
             updateOrderCalculations(data.defaults);
         });
 }
 
 function updateOrderCalculations(defaults) {
+    customerTaxable = !!defaults.taxable;
+    customerTaxPercent = parseFloat(defaults.tax_percentage) || 0;
+
+    var label = document.getElementById('tax-percent-label');
+    if (customerTaxable && customerTaxPercent > 0) {
+        label.textContent = '(' + customerTaxPercent.toFixed(2) + '%)';
+    } else {
+        label.textContent = '';
+    }
+
     const itemTotal = parseFloat(document.getElementById('item-total').textContent.replace('$', '')) || 0;
-    
+
     let discountValue = 0;
     const discountDisplay = document.getElementById('discount-display');
     if (defaults.discount_type && defaults.discount_value) {
         const value = parseFloat(defaults.discount_value);
         const symbol = defaults.discount_type === 'PERCENT' ? '%' : '$';
-        discountDisplay.textContent = `${symbol}${defaults.discount_value}`;
+        discountDisplay.textContent = symbol + defaults.discount_value;
         discountValue = defaults.discount_type === 'PERCENT' ? (itemTotal * value / 100) : value;
     } else {
         discountDisplay.textContent = '-';
     }
-    
+
     let surchargeValue = 0;
     const surchargeDisplay = document.getElementById('surcharge-display');
     if (defaults.surcharge_type && defaults.surcharge_value) {
         const value = parseFloat(defaults.surcharge_value);
         const symbol = defaults.surcharge_type === 'PERCENT' ? '%' : '$';
-        surchargeDisplay.textContent = `${symbol}${defaults.surcharge_value}`;
+        surchargeDisplay.textContent = symbol + defaults.surcharge_value;
         surchargeValue = defaults.surcharge_type === 'PERCENT' ? (itemTotal * value / 100) : value;
     } else {
         surchargeDisplay.textContent = '-';
@@ -185,79 +667,87 @@ function updateOrderCalculations(defaults) {
     if (defaults.shipping_type && defaults.shipping_value) {
         const value = parseFloat(defaults.shipping_value);
         const symbol = defaults.shipping_type === 'PERCENT' ? '%' : '$';
-        shippingDisplay.textContent = `${symbol}${defaults.shipping_value}`;
+        shippingDisplay.textContent = symbol + defaults.shipping_value;
         shippingValue = defaults.shipping_type === 'PERCENT' ? (itemTotal * value / 100) : value;
     } else {
         shippingDisplay.textContent = '-';
     }
-    
+
     updateOrderTotal(itemTotal, discountValue, surchargeValue, shippingValue);
 }
 
 function updateItemTotal(newTotal) {
-    const itemTotalElement = document.getElementById('item-total');
-    itemTotalElement.textContent = `$${newTotal.toFixed(2)}`;
-    
-    const discountValue = getDiscountValue();
-    const surchargeValue = getSurchargeValue();
-    const shippingValue = getShippingValue();
-    
-    updateOrderTotal(newTotal, discountValue, surchargeValue, shippingValue);
+    document.getElementById('item-total').textContent = '$' + newTotal.toFixed(2);
+    updateOrderTotal(newTotal, getDiscountValue(), getSurchargeValue(), getShippingValue());
 }
 
 function updateOrderTotal(itemTotal, discount, surcharge, shipping) {
     const subtotal = itemTotal - discount + surcharge + shipping;
-    document.getElementById('sub-total-display').textContent = `$${subtotal.toFixed(2)}`;
-    document.getElementById('tax-total-display').textContent = `$0.00`;
-    document.getElementById('total-display').textContent = `$${subtotal.toFixed(2)}`;
+    document.getElementById('sub-total-display').textContent = '$' + subtotal.toFixed(2);
+
+    var taxAmount = 0;
+    if (customerTaxable && customerTaxPercent > 0) {
+        taxAmount = subtotal * (customerTaxPercent / 100);
+    }
+    document.getElementById('tax-total-display').textContent = '$' + taxAmount.toFixed(2);
+    document.getElementById('total-display').textContent = '$' + (subtotal + taxAmount).toFixed(2);
 }
 
 function getDiscountValue() {
-    const discountDisplay = document.getElementById('discount-display');
-    const discountText = discountDisplay.textContent;
-    if (discountText === '-') return 0;
+    const text = document.getElementById('discount-display').textContent;
+    if (text === '-') return 0;
     const itemTotal = parseFloat(document.getElementById('item-total').textContent.replace('$', '')) || 0;
-    if (discountText.startsWith('%')) {
-        return itemTotal * parseFloat(discountText.replace('%', '')) / 100;
-    } else if (discountText.startsWith('$')) {
-        return parseFloat(discountText.replace('$', ''));
-    }
+    if (text.startsWith('%')) return itemTotal * parseFloat(text.replace('%', '')) / 100;
+    if (text.startsWith('$')) return parseFloat(text.replace('$', ''));
     return 0;
 }
 
 function getSurchargeValue() {
-    const surchargeDisplay = document.getElementById('surcharge-display');
-    const surchargeText = surchargeDisplay.textContent;
-    if (surchargeText === '-') return 0;
+    const text = document.getElementById('surcharge-display').textContent;
+    if (text === '-') return 0;
     const itemTotal = parseFloat(document.getElementById('item-total').textContent.replace('$', '')) || 0;
-    if (surchargeText.startsWith('%')) {
-        return itemTotal * parseFloat(surchargeText.replace('%', '')) / 100;
-    } else if (surchargeText.startsWith('$')) {
-        return parseFloat(surchargeText.replace('$', ''));
-    }
+    if (text.startsWith('%')) return itemTotal * parseFloat(text.replace('%', '')) / 100;
+    if (text.startsWith('$')) return parseFloat(text.replace('$', ''));
     return 0;
 }
 
 function getShippingValue() {
-    const shippingDisplay = document.getElementById('shipping-display');
-    const shippingText = shippingDisplay.textContent;
-    if (shippingText === '-') return 0;
+    const text = document.getElementById('shipping-display').textContent;
+    if (text === '-') return 0;
     const itemTotal = parseFloat(document.getElementById('item-total').textContent.replace('$', '')) || 0;
-    if (shippingText.startsWith('%')) {
-        return itemTotal * parseFloat(shippingText.replace('%', '')) / 100;
-    } else if (shippingText.startsWith('$')) {
-        return parseFloat(shippingText.replace('$', ''));
-    }
+    if (text.startsWith('%')) return itemTotal * parseFloat(text.replace('%', '')) / 100;
+    if (text.startsWith('$')) return parseFloat(text.replace('$', ''));
     return 0;
 }
 
 function calculateLineItemsTotal() {
     let total = 0;
-    const lineItems = document.querySelectorAll('[data-line-item-price]');
-    lineItems.forEach(item => {
+    document.querySelectorAll('[data-line-item-price]').forEach(function(item) {
         total += parseFloat(item.dataset.lineItemPrice);
     });
     return total;
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    var total = calculateLineItemsTotal();
+    if (total > 0) {
+        updateItemTotal(total);
+    }
+    var customerSelect = document.getElementById('id_customer');
+    if (customerSelect && customerSelect.value) {
+        fetch('/orders/get-customer-address/?customer=' + customerSelect.value)
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                updateOrderCalculations(data.defaults);
+            });
+    }
+
+    {% if editing %}
+    if (new URLSearchParams(window.location.search).get('print') === '1') {
+        htmx.ajax('GET', "{% url 'print_modal' order.id %}", {target: '#modal'});
+        history.replaceState(null, '', window.location.pathname);
+    }
+    {% endif %}
+});
 </script>
 {% endblock %}

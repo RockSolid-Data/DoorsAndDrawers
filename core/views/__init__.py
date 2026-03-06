@@ -1,15 +1,14 @@
 from django.shortcuts import render
 from .customer import (
-    customers, customer_detail, new_customer,
+    customers, new_customer,
     edit_customer, delete_customer
 )
 from .order import (
-    orders, order_detail, create_order,
-    delete_order
+    orders, edit_order, create_order,
+    delete_order, get_line_item, convert_to_order
 )
 from .quote import (
-    quotes, quote_detail, create_quote,
-    delete_quote, convert_to_order
+    quotes,
 )
 from .line_item import (
     settings, door_settings, drawer_settings,
@@ -21,7 +20,6 @@ from .door import (
 from .drawer import (
     drawer_form, add_drawer
 )
-# Import common utilities
 from . import common
 from . import lifecycle
 
@@ -32,13 +30,12 @@ def home(request):
 
 __all__ = [
     'home',
-    'customers', 'customer_detail', 'new_customer',
+    'customers', 'new_customer',
     'edit_customer', 'delete_customer',
-    'orders', 'order_detail', 'create_order',
-    'delete_order',
-    'quotes', 'quote_detail', 'create_quote',
-    'delete_quote', 'convert_to_order',
+    'orders', 'edit_order', 'create_order',
+    'delete_order', 'convert_to_order',
+    'quotes',
     'settings', 'door_settings', 'drawer_settings',
     'door_form', 'drawer_form', 'add_drawer',
-    'common'  # Make common module available
-] 
+    'common',
+]

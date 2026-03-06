@@ -1,100 +1,108 @@
 {% load widget_tweaks %}
 
-<div id="drawer-form" class="p-3">
-    <h2 class="text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Drawer Details</h2>
-    
+<div id="drawer-form-container" class="space-y-4">
+    {% csrf_token %}
+
     {% if form.non_field_errors %}
-    <div class="mb-2 p-2 bg-red-50 border border-red-200 rounded text-red-700 text-xs">
+    <div class="p-2 bg-red-50 border border-red-200 rounded-md text-red-700 text-xs">
         {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
     </div>
     {% endif %}
-    
-    <div class="grid grid-cols-2 gap-3">
-        <div class="space-y-2">
+
+    <!-- Options Section (top) -->
+    <div>
+        <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Drawer Options</div>
+        <div class="grid grid-cols-2 gap-3">
             <div>
                 <label for="{{ form.wood_stock.id_for_label }}" class="block text-xs font-medium text-gray-600 mb-0.5">Wood Stock</label>
-                {% render_field form.wood_stock class="block w-full px-2 py-1 text-sm rounded" %}
+                {% render_field form.wood_stock class="block w-full px-2.5 py-1.5 text-sm rounded-md" %}
                 {% if form.wood_stock.errors %}<div class="text-red-500 text-xs mt-0.5">{{ form.wood_stock.errors }}</div>{% endif %}
             </div>
             <div>
                 <label for="{{ form.bottom.id_for_label }}" class="block text-xs font-medium text-gray-600 mb-0.5">Bottom</label>
-                {% render_field form.bottom class="block w-full px-2 py-1 text-sm rounded" %}
+                {% render_field form.bottom class="block w-full px-2.5 py-1.5 text-sm rounded-md" %}
                 {% if form.bottom.errors %}<div class="text-red-500 text-xs mt-0.5">{{ form.bottom.errors }}</div>{% endif %}
             </div>
         </div>
-        
-        <div class="space-y-2">
-            <div>
-                <span class="text-xs font-medium text-gray-600">Dimensions (in)</span>
-                <div class="grid grid-cols-3 gap-1.5 mt-0.5">
-                    <div>
-                        <label for="{{ form.width.id_for_label }}" class="block text-xs text-gray-500">W</label>
-                        {% render_field form.width class="block w-full px-2 py-1 text-sm rounded" %}
-                    </div>
-                    <div>
-                        <label for="{{ form.height.id_for_label }}" class="block text-xs text-gray-500">H</label>
-                        {% render_field form.height class="block w-full px-2 py-1 text-sm rounded" %}
-                    </div>
-                    <div>
-                        <label for="{{ form.depth.id_for_label }}" class="block text-xs text-gray-500">D</label>
-                        {% render_field form.depth class="block w-full px-2 py-1 text-sm rounded" %}
-                    </div>
-                </div>
-            </div>
-            
-            <div>
-                <label for="{{ form.quantity.id_for_label }}" class="block text-xs font-medium text-gray-600 mb-0.5">Quantity</label>
-                {% render_field form.quantity class="block w-full px-2 py-1 text-sm rounded" %}
-            </div>
-            
+
+        <div class="flex gap-5 mt-3">
             <div class="flex items-center gap-1.5">
-                <input type="checkbox" id="drawer_custom_price" name="custom_price" class="h-3.5 w-3.5 text-indigo-600 border-gray-400 rounded">
-                <label for="drawer_custom_price" class="text-xs font-medium text-gray-600">Custom Price</label>
+                {% render_field form.undermount class="h-4 w-4 text-emerald-600 border-gray-400 rounded" %}
+                <label for="{{ form.undermount.id_for_label }}" class="text-xs font-medium text-gray-700">Undermount</label>
             </div>
-            
-            <div class="drawer-custom-price-field" style="display: none;">
-                <label for="drawer_price_per_unit_manual" class="block text-xs font-medium text-gray-600 mb-0.5">Price Per Unit ($)</label>
-                <input type="number" id="drawer_price_per_unit_manual" name="price_per_unit_manual" step="0.01" min="0.01" class="block w-full px-2 py-1 text-sm rounded">
-            </div>
-            
-            <div>
-                <span class="text-xs font-medium text-gray-600">Options</span>
-                <div class="flex gap-3 mt-0.5">
-                    <div class="flex items-center gap-1">
-                        {% render_field form.undermount class="h-3.5 w-3.5 text-indigo-600 border-gray-400 rounded" %}
-                        <label for="{{ form.undermount.id_for_label }}" class="text-xs text-gray-700">Undermount</label>
-                    </div>
-                    <div class="flex items-center gap-1">
-                        {% render_field form.finishing class="h-3.5 w-3.5 text-indigo-600 border-gray-400 rounded" %}
-                        <label for="{{ form.finishing.id_for_label }}" class="text-xs text-gray-700">Finishing</label>
-                    </div>
-                </div>
+            <div class="flex items-center gap-1.5">
+                {% render_field form.finishing class="h-4 w-4 text-emerald-600 border-gray-400 rounded" %}
+                <label for="{{ form.finishing.id_for_label }}" class="text-xs font-medium text-gray-700">Finishing</label>
             </div>
         </div>
     </div>
-    
-    <div class="mt-3">
-        <button type="button" 
-                id="add-drawer-button"
-                class="px-3 py-1.5 text-xs font-semibold rounded text-white bg-indigo-600 hover:bg-indigo-700"
+
+    <!-- Custom Price toggle -->
+    <div class="flex items-center gap-4">
+        <div class="flex items-center gap-1.5">
+            <input type="checkbox" id="drawer_custom_price" name="custom_price" class="h-3.5 w-3.5 text-emerald-600 border-gray-400 rounded">
+            <label for="drawer_custom_price" class="text-xs font-medium text-gray-600">Custom Price</label>
+        </div>
+        <div class="drawer-custom-price-field hidden flex-1">
+            <input type="number" id="drawer_price_per_unit_manual" name="price_per_unit_manual" step="0.01" min="0.01"
+                   placeholder="Price per unit ($)"
+                   class="block w-full px-2.5 py-1.5 text-sm rounded-md">
+        </div>
+    </div>
+
+    <!-- Separator -->
+    <div class="border-t border-gray-200"></div>
+
+    <!-- Dimensions Section (bottom — rapid entry: Qty, Height, Width, Depth) -->
+    <div>
+        <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Dimensions</div>
+        <div class="grid grid-cols-4 gap-3">
+            <div>
+                <label for="{{ form.quantity.id_for_label }}" class="block text-xs font-medium text-gray-600 mb-0.5">Qty</label>
+                {% render_field form.quantity class="block w-full px-2.5 py-2 text-sm rounded-md font-semibold text-center" data-enter-order="1" data-clear-on-add="true" %}
+                {% if form.quantity.errors %}<div class="text-red-500 text-xs mt-0.5">{{ form.quantity.errors }}</div>{% endif %}
+            </div>
+            <div>
+                <label for="{{ form.height.id_for_label }}" class="block text-xs font-medium text-gray-600 mb-0.5">Height (in)</label>
+                {% render_field form.height class="block w-full px-2.5 py-2 text-sm rounded-md font-semibold text-center" data-enter-order="2" data-clear-on-add="true" %}
+                {% if form.height.errors %}<div class="text-red-500 text-xs mt-0.5">{{ form.height.errors }}</div>{% endif %}
+            </div>
+            <div>
+                <label for="{{ form.width.id_for_label }}" class="block text-xs font-medium text-gray-600 mb-0.5">Width (in)</label>
+                {% render_field form.width class="block w-full px-2.5 py-2 text-sm rounded-md font-semibold text-center" data-enter-order="3" data-clear-on-add="true" %}
+                {% if form.width.errors %}<div class="text-red-500 text-xs mt-0.5">{{ form.width.errors }}</div>{% endif %}
+            </div>
+            <div>
+                <label for="{{ form.depth.id_for_label }}" class="block text-xs font-medium text-gray-600 mb-0.5">Depth (in)</label>
+                {% render_field form.depth class="block w-full px-2.5 py-2 text-sm rounded-md font-semibold text-center" data-enter-order="4" data-clear-on-add="true" %}
+                {% if form.depth.errors %}<div class="text-red-500 text-xs mt-0.5">{{ form.depth.errors }}</div>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Button -->
+    <div class="pt-1">
+        <button type="button" data-add-button
+                class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold rounded-md text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-colors"
                 hx-post="{% url 'new_drawer' %}"
-                hx-include="#drawer-form"
+                hx-include="#drawer-form-container"
                 hx-target="#line-items-container"
                 hx-swap="innerHTML">
-            Add Drawer
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Add Drawer to Order
         </button>
     </div>
 </div>
 
 <script>
-    (function() {
-        const cb = document.getElementById('drawer_custom_price');
-        const field = document.querySelector('.drawer-custom-price-field');
-        if (cb && field) {
-            field.style.display = cb.checked ? 'block' : 'none';
-            cb.addEventListener('change', function() {
-                field.style.display = this.checked ? 'block' : 'none';
-            });
-        }
-    })();
+(function() {
+    const cb = document.getElementById('drawer_custom_price');
+    const field = document.querySelector('.drawer-custom-price-field');
+    if (cb && field) {
+        field.classList.toggle('hidden', !cb.checked);
+        cb.addEventListener('change', function() {
+            field.classList.toggle('hidden', !this.checked);
+        });
+    }
+})();
 </script>

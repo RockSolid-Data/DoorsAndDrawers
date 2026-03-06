@@ -2,49 +2,49 @@
 
 {% if orders.has_other_pages %}
 <tr id="pagination-controls">
-    <td colspan="4" class="px-4 py-2 bg-gray-50 border-t border-gray-200">
+    <td colspan="4" class="px-6 py-3 border-t border-gray-100">
         <div class="flex items-center justify-between">
-            <div class="text-xs text-gray-600">
-                Showing {{ orders.start_index }}-{{ orders.end_index }} of {{ paginator.count }}
-            </div>
-            <div class="flex gap-1">
+            <span class="text-xs text-gray-500">
+                Showing {{ orders.start_index }}&ndash;{{ orders.end_index }} of {{ paginator.count }}
+            </span>
+            <div class="flex items-center gap-1">
                 {% if orders.has_previous %}
                     <a href="#" 
-                       class="px-2 py-1 bg-white border border-gray-300 rounded text-xs font-medium text-gray-600 hover:bg-gray-50"
+                       class="p-1.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                        hx-get="{% url 'order_search' %}?{% if min_id %}min_id={{ min_id }}&{% endif %}{% if max_id %}max_id={{ max_id }}&{% endif %}{% if start_date %}start_date={{ start_date }}&{% endif %}{% if end_date %}end_date={{ end_date }}&{% endif %}{% if customer_search %}customer_search={{ customer_search }}&{% endif %}page=1"
                        hx-target="#order-results"
                        hx-swap="innerHTML"
                        hx-indicator="#search-indicator"
                        title="First page">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
                     </a>
                     <a href="#" 
-                       class="px-2 py-1 bg-white border border-gray-300 rounded text-xs font-medium text-gray-600 hover:bg-gray-50"
+                       class="px-2.5 py-1 rounded-md text-xs font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
                        hx-get="{% url 'order_search' %}?{% if min_id %}min_id={{ min_id }}&{% endif %}{% if max_id %}max_id={{ max_id }}&{% endif %}{% if start_date %}start_date={{ start_date }}&{% endif %}{% if end_date %}end_date={{ end_date }}&{% endif %}{% if customer_search %}customer_search={{ customer_search }}&{% endif %}page={{ orders.previous_page_number }}"
                        hx-target="#order-results"
                        hx-swap="innerHTML"
                        hx-indicator="#search-indicator">Prev</a>
                 {% endif %}
                 
-                <span class="px-2 py-1 bg-indigo-50 border border-indigo-200 rounded text-xs font-medium text-indigo-700">
+                <span class="px-2.5 py-1 text-xs font-medium text-indigo-600">
                     {{ orders.number }} / {{ orders.paginator.num_pages }}
                 </span>
                 
                 {% if orders.has_next %}
                     <a href="#"
-                       class="px-2 py-1 bg-white border border-gray-300 rounded text-xs font-medium text-gray-600 hover:bg-gray-50"
+                       class="px-2.5 py-1 rounded-md text-xs font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
                        hx-get="{% url 'order_search' %}?{% if min_id %}min_id={{ min_id }}&{% endif %}{% if max_id %}max_id={{ max_id }}&{% endif %}{% if start_date %}start_date={{ start_date }}&{% endif %}{% if end_date %}end_date={{ end_date }}&{% endif %}{% if customer_search %}customer_search={{ customer_search }}&{% endif %}page={{ orders.next_page_number }}"
                        hx-target="#order-results"
                        hx-swap="innerHTML"
                        hx-indicator="#search-indicator">Next</a>
                     <a href="#" 
-                       class="px-2 py-1 bg-white border border-gray-300 rounded text-xs font-medium text-gray-600 hover:bg-gray-50"
+                       class="p-1.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                        hx-get="{% url 'order_search' %}?{% if min_id %}min_id={{ min_id }}&{% endif %}{% if max_id %}max_id={{ max_id }}&{% endif %}{% if start_date %}start_date={{ start_date }}&{% endif %}{% if end_date %}end_date={{ end_date }}&{% endif %}{% if customer_search %}customer_search={{ customer_search }}&{% endif %}page={{ orders.paginator.num_pages }}"
                        hx-target="#order-results"
                        hx-swap="innerHTML"
                        hx-indicator="#search-indicator"
                        title="Last page">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
                     </a>
                 {% endif %}
             </div>

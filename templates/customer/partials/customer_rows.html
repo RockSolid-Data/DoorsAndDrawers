@@ -1,18 +1,19 @@
 {% load formatting %}
 {% for customer in customers %}
-<tr class="hover:bg-gray-50">
-    <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">{{ customer.company_name|title }}</td>
-    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{{ customer.first_name|title }} {{ customer.last_name|title }}</td>
-    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{{ customer.phone|format_phone }}</td>
-    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{{ customer.city|title }}, {{ customer.get_state_display }}</td>
-    <td class="px-4 py-2 whitespace-nowrap text-sm text-right">
-        <a href="{% url 'customer_detail' customer.id %}" class="text-indigo-600 hover:text-indigo-800 font-medium">View</a>
-    </td>
+<tr class="hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.location='{% url 'edit_customer' customer.id %}'">
+    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ customer.company_name|title }}</td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ customer.first_name|title }} {{ customer.last_name|title }}</td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ customer.phone|format_phone }}</td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ customer.city|title }}, {{ customer.get_state_display }}</td>
 </tr>
 {% empty %}
 <tr>
-    <td colspan="5" class="px-4 py-6 text-center text-sm text-gray-500">
-        No customers found. Try a different search or <a href="{% url 'new_customer' %}" class="text-indigo-600 hover:text-indigo-800">add a new customer</a>.
+    <td colspan="4" class="px-6 py-12 text-center">
+        <div class="text-gray-400 mb-1">
+            <svg class="w-8 h-8 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        </div>
+        <p class="text-sm text-gray-500 mb-1">No customers found</p>
+        <p class="text-xs text-gray-400">Try a different search or <a href="{% url 'new_customer' %}" class="text-indigo-600 hover:text-indigo-700">add a new customer</a></p>
     </td>
 </tr>
 {% endfor %}

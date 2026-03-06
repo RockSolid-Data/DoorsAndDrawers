@@ -1,0 +1,100 @@
+<div id="modal-backdrop"
+     class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm"
+     onclick="if(event.target===this)closeModal()">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+            <h3 class="text-base font-semibold text-gray-900">Print Documents</h3>
+            <button type="button" onclick="closeModal()"
+                    class="text-gray-400 hover:text-gray-600 transition-colors rounded-lg p-1 hover:bg-gray-100">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <form method="post" action="{% url 'print_documents' order.id %}" target="_blank">
+            {% csrf_token %}
+            <div class="px-5 py-5 space-y-5">
+
+                <div>
+                    <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Doors</h4>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3">
+                            <input type="checkbox" name="doc_door_panel" value="1" checked
+                                   class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            <span class="flex-1 text-sm text-gray-700">Panel Report</span>
+                            <input type="number" name="qty_door_panel" value="1" min="1" max="99"
+                                   class="w-16 text-sm text-center px-2 py-1 rounded-lg border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500">
+                        </label>
+                        <label class="flex items-center gap-3">
+                            <input type="checkbox" name="doc_door_cutting" value="1" checked
+                                   class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            <span class="flex-1 text-sm text-gray-700">Cutting Report</span>
+                            <input type="number" name="qty_door_cutting" value="1" min="1" max="99"
+                                   class="w-16 text-sm text-center px-2 py-1 rounded-lg border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500">
+                        </label>
+                        <label class="flex items-center gap-3">
+                            <input type="checkbox" name="doc_door_gluing" value="1" checked
+                                   class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            <span class="flex-1 text-sm text-gray-700">Gluing Report</span>
+                            <input type="number" name="qty_door_gluing" value="1" min="1" max="99"
+                                   class="w-16 text-sm text-center px-2 py-1 rounded-lg border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500">
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Drawers</h4>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3">
+                            <input type="checkbox" name="doc_drawer_stock" value="1" checked
+                                   class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            <span class="flex-1 text-sm text-gray-700">Stock Sheet</span>
+                            <input type="number" name="qty_drawer_stock" value="1" min="1" max="99"
+                                   class="w-16 text-sm text-center px-2 py-1 rounded-lg border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500">
+                        </label>
+                        <label class="flex items-center gap-3">
+                            <input type="checkbox" name="doc_drawer_cutting" value="1" checked
+                                   class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            <span class="flex-1 text-sm text-gray-700">Cutting List</span>
+                            <input type="number" name="qty_drawer_cutting" value="1" min="1" max="99"
+                                   class="w-16 text-sm text-center px-2 py-1 rounded-lg border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500">
+                        </label>
+                        <label class="flex items-center gap-3">
+                            <input type="checkbox" name="doc_drawer_panel" value="1" checked
+                                   class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            <span class="flex-1 text-sm text-gray-700">Panel Sheet</span>
+                            <input type="number" name="qty_drawer_panel" value="1" min="1" max="99"
+                                   class="w-16 text-sm text-center px-2 py-1 rounded-lg border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500">
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Lumber</h4>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3">
+                            <input type="checkbox" name="doc_lumber_sheet" value="1" checked
+                                   class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            <span class="flex-1 text-sm text-gray-700">Lumber Sheet</span>
+                            <input type="number" name="qty_lumber_sheet" value="1" min="1" max="99"
+                                   class="w-16 text-sm text-center px-2 py-1 rounded-lg border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500">
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+            <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 flex justify-end gap-2">
+                <button type="button" onclick="closeModal()"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    Print
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

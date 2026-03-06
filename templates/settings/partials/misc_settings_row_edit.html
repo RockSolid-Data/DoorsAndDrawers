@@ -1,68 +1,78 @@
-<div id="misc-settings-fields">
-    <form hx-post="{% url 'update_misc_settings' %}" hx-target="#misc-settings-fields" hx-swap="outerHTML">
-        {% csrf_token %}
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-4">
-            <div>
-                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide">Extra Height</label>
-                <input type="number" name="extra_height" value="{{ settings.extra_height }}" step="0.001" min="0.001" required
-                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                {% if errors.extra_height %}<p class="mt-1 text-xs text-red-600">{{ errors.extra_height.0 }}</p>{% endif %}
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide">Extra Width</label>
-                <input type="number" name="extra_width" value="{{ settings.extra_width }}" step="0.001" min="0.001" required
-                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                {% if errors.extra_width %}<p class="mt-1 text-xs text-red-600">{{ errors.extra_width.0 }}</p>{% endif %}
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide">Glue Min Width</label>
-                <input type="number" name="glue_min_width" value="{{ settings.glue_min_width }}" step="0.001" min="0.001" required
-                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                {% if errors.glue_min_width %}<p class="mt-1 text-xs text-red-600">{{ errors.glue_min_width.0 }}</p>{% endif %}
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide">Rail Extra</label>
-                <input type="number" name="rail_extra" value="{{ settings.rail_extra }}" step="0.001" min="0.001" required
-                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                {% if errors.rail_extra %}<p class="mt-1 text-xs text-red-600">{{ errors.rail_extra.0 }}</p>{% endif %}
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide">Drawer Front Type</label>
-                <select name="drawer_front" required
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                    {% for panel_type in panel_types %}
-                    <option value="{{ panel_type.id }}" {% if panel_type.id == settings.drawer_front.id %}selected{% endif %}>
-                        {{ panel_type.name }}
-                    </option>
-                    {% endfor %}
-                </select>
-                {% if errors.drawer_front %}<p class="mt-1 text-xs text-red-600">{{ errors.drawer_front.0 }}</p>{% endif %}
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide">Drawer Slab Type</label>
-                <select name="drawer_slab" required
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                    {% for panel_type in panel_types %}
-                    <option value="{{ panel_type.id }}" {% if panel_type.id == settings.drawer_slab.id %}selected{% endif %}>
-                        {{ panel_type.name }}
-                    </option>
-                    {% endfor %}
-                </select>
-                {% if errors.drawer_slab %}<p class="mt-1 text-xs text-red-600">{{ errors.drawer_slab.0 }}</p>{% endif %}
-            </div>
-        </div>
-        <div class="mt-4 flex justify-end space-x-2">
-            <button type="button"
-                    class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-                    hx-get="{% url 'get_misc_settings' %}"
-                    hx-target="#misc-settings-fields"
-                    hx-swap="outerHTML">
-                Cancel
-            </button>
-            <button type="submit"
-                    class="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 transition-colors">
-                Save
+<div id="modal-backdrop"
+     class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm"
+     onclick="if(event.target===this)closeModal()">
+    <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4 overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+            <h3 class="text-base font-semibold text-gray-900">Edit Miscellaneous Settings</h3>
+            <button type="button" onclick="closeModal()"
+                    class="text-gray-400 hover:text-gray-600 transition-colors rounded-lg p-1 hover:bg-gray-100">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
             </button>
         </div>
-    </form>
+        <form hx-post="{% url 'update_misc_settings' %}" hx-target="#modal">
+            {% csrf_token %}
+            <div class="px-5 py-5 space-y-5">
+                <div>
+                    <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Dimensions</h4>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label for="id_extra_height" class="block text-sm text-gray-600 mb-1">Extra Height</label>
+                            <input type="number" name="extra_height" id="id_extra_height" step="0.001" min="0.001" required value="{{ settings.extra_height }}"
+                                   class="w-full text-sm px-3 py-2 rounded-lg">
+                        </div>
+                        <div>
+                            <label for="id_extra_width" class="block text-sm text-gray-600 mb-1">Extra Width</label>
+                            <input type="number" name="extra_width" id="id_extra_width" step="0.001" min="0.001" required value="{{ settings.extra_width }}"
+                                   class="w-full text-sm px-3 py-2 rounded-lg">
+                        </div>
+                        <div>
+                            <label for="id_glue_min_width" class="block text-sm text-gray-600 mb-1">Glue Min Width</label>
+                            <input type="number" name="glue_min_width" id="id_glue_min_width" step="0.001" min="0.001" required value="{{ settings.glue_min_width }}"
+                                   class="w-full text-sm px-3 py-2 rounded-lg">
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Rail & Drawer Types</h4>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label for="id_rail_extra" class="block text-sm text-gray-600 mb-1">Rail Extra</label>
+                            <input type="number" name="rail_extra" id="id_rail_extra" step="0.001" min="0.001" required value="{{ settings.rail_extra }}"
+                                   class="w-full text-sm px-3 py-2 rounded-lg">
+                        </div>
+                        <div>
+                            <label for="id_drawer_front" class="block text-sm text-gray-600 mb-1">Drawer Front</label>
+                            <select name="drawer_front" id="id_drawer_front" class="w-full text-sm px-3 py-2 rounded-lg">
+                                {% for panel_type in panel_types %}
+                                <option value="{{ panel_type.id }}" {% if panel_type.id == settings.drawer_front_id %}selected{% endif %}>{{ panel_type.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label for="id_drawer_slab" class="block text-sm text-gray-600 mb-1">Drawer Slab</label>
+                            <select name="drawer_slab" id="id_drawer_slab" class="w-full text-sm px-3 py-2 rounded-lg">
+                                {% for panel_type in panel_types %}
+                                <option value="{{ panel_type.id }}" {% if panel_type.id == settings.drawer_slab_id %}selected{% endif %}>{{ panel_type.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 flex justify-end gap-2">
+                <button type="button" onclick="closeModal()"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    Save
+                </button>
+            </div>
+        </form>
+    </div>
 </div>

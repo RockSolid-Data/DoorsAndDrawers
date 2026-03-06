@@ -54,7 +54,7 @@ def transform_door_data(request, cleaned_data, door_model, item_type, custom_pri
         'wood_stock': {'id': cleaned_data['wood_stock'].pk, 'name': cleaned_data['wood_stock'].name},
         'edge_profile': {'id': cleaned_data['edge_profile'].pk, 'name': cleaned_data['edge_profile'].name},
         'panel_rise': {'id': cleaned_data['panel_rise'].pk, 'name': cleaned_data['panel_rise'].name},
-        'style': {'id': cleaned_data['style'].pk, 'name': cleaned_data['style'].name},
+        'style': {'id': cleaned_data['style'].pk, 'name': str(cleaned_data['style'])},
         'width': str(cleaned_data['width']),
         'height': str(cleaned_data['height']),
         'quantity': str(cleaned_data['quantity']),

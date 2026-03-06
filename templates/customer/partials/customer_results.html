@@ -2,49 +2,49 @@
 
 {% if customers.has_other_pages %}
 <tr id="pagination-controls">
-    <td colspan="5" class="px-4 py-2 bg-gray-50 border-t border-gray-200">
+    <td colspan="5" class="px-6 py-3 border-t border-gray-100">
         <div class="flex items-center justify-between">
-            <div class="text-xs text-gray-600">
-                Showing {{ customers.start_index }}-{{ customers.end_index }} of {{ paginator.count }}
-            </div>
-            <div class="flex gap-1">
+            <span class="text-xs text-gray-500">
+                Showing {{ customers.start_index }}&ndash;{{ customers.end_index }} of {{ paginator.count }}
+            </span>
+            <div class="flex items-center gap-1">
                 {% if customers.has_previous %}
                     <a href="#" 
-                       class="px-2 py-1 bg-white border border-gray-300 rounded text-xs font-medium text-gray-600 hover:bg-gray-50"
+                       class="p-1.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                        hx-get="{% url 'customer_search' %}?search={{ search_query }}&page=1"
                        hx-target="#customer-results"
                        hx-swap="innerHTML"
                        hx-indicator="#search-indicator"
                        title="First page">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
                     </a>
                     <a href="#" 
-                       class="px-2 py-1 bg-white border border-gray-300 rounded text-xs font-medium text-gray-600 hover:bg-gray-50"
+                       class="px-2.5 py-1 rounded-md text-xs font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
                        hx-get="{% url 'customer_search' %}?search={{ search_query }}&page={{ customers.previous_page_number }}"
                        hx-target="#customer-results"
                        hx-swap="innerHTML"
                        hx-indicator="#search-indicator">Prev</a>
                 {% endif %}
                 
-                <span class="px-2 py-1 bg-indigo-50 border border-indigo-200 rounded text-xs font-medium text-indigo-700">
+                <span class="px-2.5 py-1 text-xs font-medium text-indigo-600">
                     {{ customers.number }} / {{ customers.paginator.num_pages }}
                 </span>
                 
                 {% if customers.has_next %}
                     <a href="#"
-                       class="px-2 py-1 bg-white border border-gray-300 rounded text-xs font-medium text-gray-600 hover:bg-gray-50"
+                       class="px-2.5 py-1 rounded-md text-xs font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
                        hx-get="{% url 'customer_search' %}?search={{ search_query }}&page={{ customers.next_page_number }}"
                        hx-target="#customer-results"
                        hx-swap="innerHTML"
                        hx-indicator="#search-indicator">Next</a>
                     <a href="#" 
-                       class="px-2 py-1 bg-white border border-gray-300 rounded text-xs font-medium text-gray-600 hover:bg-gray-50"
+                       class="p-1.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                        hx-get="{% url 'customer_search' %}?search={{ search_query }}&page={{ customers.paginator.num_pages }}"
                        hx-target="#customer-results"
                        hx-swap="innerHTML"
                        hx-indicator="#search-indicator"
                        title="Last page">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
                     </a>
                 {% endif %}
             </div>

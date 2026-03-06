@@ -1,40 +1,58 @@
 {% load widget_tweaks %}
 
-<div id="generic-item-form" class="p-3">
-    <h2 class="text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Add Miscellaneous Item</h2>
-    
-    <form id="item-form" hx-post="{% url 'add_generic_item' %}" hx-target="#line-items-container" hx-swap="innerHTML">
-        {% csrf_token %}
-        
-        <div class="space-y-2 mb-3">
+<div id="generic-item-form" class="space-y-4">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="p-2 bg-red-50 border border-red-200 rounded-md text-red-700 text-xs">
+        {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Item Details (top) -->
+    <div>
+        <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Item Details</div>
+        <div class="space-y-3">
             <div>
                 <label for="{{ form.name.id_for_label }}" class="block text-xs font-medium text-gray-600 mb-0.5">
-                    {{ form.name.label }} {% if form.name.field.required %}<span class="text-red-500">*</span>{% endif %}
+                    Item Name {% if form.name.field.required %}<span class="text-red-500">*</span>{% endif %}
                 </label>
-                {% render_field form.name class="block w-full px-2 py-1 text-sm rounded" placeholder="Item name or description" %}
+                {% render_field form.name class="block w-full px-2.5 py-1.5 text-sm rounded-md" placeholder="Item name or description" data-enter-order="1" data-clear-on-add="true" %}
                 {% if form.name.errors %}<div class="text-red-500 text-xs mt-0.5">{{ form.name.errors }}</div>{% endif %}
             </div>
-            
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label for="{{ form.price_per_unit.id_for_label }}" class="block text-xs font-medium text-gray-600 mb-0.5">
-                        Price ($) {% if form.price_per_unit.field.required %}<span class="text-red-500">*</span>{% endif %}
-                    </label>
-                    {% render_field form.price_per_unit class="block w-full px-2 py-1 text-sm rounded" placeholder="0.00" %}
-                    {% if form.price_per_unit.errors %}<div class="text-red-500 text-xs mt-0.5">{{ form.price_per_unit.errors }}</div>{% endif %}
-                </div>
-                <div>
-                    <label for="{{ form.quantity.id_for_label }}" class="block text-xs font-medium text-gray-600 mb-0.5">
-                        Qty {% if form.quantity.field.required %}<span class="text-red-500">*</span>{% endif %}
-                    </label>
-                    {% render_field form.quantity class="block w-full px-2 py-1 text-sm rounded" min="1" %}
-                    {% if form.quantity.errors %}<div class="text-red-500 text-xs mt-0.5">{{ form.quantity.errors }}</div>{% endif %}
-                </div>
+            <div>
+                <label for="{{ form.price_per_unit.id_for_label }}" class="block text-xs font-medium text-gray-600 mb-0.5">
+                    Price ($) {% if form.price_per_unit.field.required %}<span class="text-red-500">*</span>{% endif %}
+                </label>
+                {% render_field form.price_per_unit class="block w-full px-2.5 py-1.5 text-sm rounded-md" placeholder="0.00" data-enter-order="2" data-clear-on-add="true" %}
+                {% if form.price_per_unit.errors %}<div class="text-red-500 text-xs mt-0.5">{{ form.price_per_unit.errors }}</div>{% endif %}
             </div>
         </div>
-        
-        <button type="submit" class="px-3 py-1.5 text-xs font-semibold rounded text-white bg-indigo-600 hover:bg-indigo-700">
-            Add Item
+    </div>
+
+    <!-- Separator -->
+    <div class="border-t border-gray-200"></div>
+
+    <!-- Qty (bottom — rapid entry) -->
+    <div>
+        <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Quantity</div>
+        <div class="w-32">
+            <label for="{{ form.quantity.id_for_label }}" class="block text-xs font-medium text-gray-600 mb-0.5">Qty</label>
+            {% render_field form.quantity class="block w-full px-2.5 py-2 text-sm rounded-md font-semibold text-center" min="1" data-enter-order="3" data-clear-on-add="true" %}
+            {% if form.quantity.errors %}<div class="text-red-500 text-xs mt-0.5">{{ form.quantity.errors }}</div>{% endif %}
+        </div>
+    </div>
+
+    <!-- Add Button -->
+    <div class="pt-1">
+        <button type="button" data-add-button
+                class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold rounded-md text-white bg-amber-600 hover:bg-amber-700 shadow-sm transition-colors"
+                hx-post="{% url 'add_generic_item' %}"
+                hx-include="#generic-item-form"
+                hx-target="#line-items-container"
+                hx-swap="innerHTML">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Add Item to Order
         </button>
-    </form>
+    </div>
 </div>

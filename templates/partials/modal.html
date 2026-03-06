@@ -1,0 +1,18 @@
+<div id="modal-backdrop"
+     class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm transition-opacity"
+     onclick="if(event.target===this)closeModal()">
+    <div class="bg-white rounded-xl shadow-2xl w-full mx-4 overflow-hidden {{ modal_size|default:'max-w-md' }}">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+            <h3 class="text-base font-semibold text-gray-900">{{ modal_title }}</h3>
+            <button type="button" onclick="closeModal()"
+                    class="text-gray-400 hover:text-gray-600 transition-colors rounded-lg p-1 hover:bg-gray-100">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <div class="px-5 py-4">
+            {% block modal_body %}{% endblock %}
+        </div>
+    </div>
+</div>

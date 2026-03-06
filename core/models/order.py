@@ -162,5 +162,11 @@ class Order(BaseModel):
         else:
             self.shipping_amount = customer_defaults.shipping_value
         
+        # Calculate tax
+        if self.customer.taxable and self.customer.tax_percentage > 0:
+            self.tax_amount = self.subtotal * (self.customer.tax_percentage / 100)
+        else:
+            self.tax_amount = 0
+
         # Calculate total
-        self.total = self.subtotal + self.tax_amount 
+        self.total = self.subtotal + self.tax_amount
