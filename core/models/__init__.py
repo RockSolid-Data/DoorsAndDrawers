@@ -17,6 +17,7 @@ from .drawer import (
     DrawerWoodStock,
     DrawerBottomSize,
     DrawerPricing,
+    DrawerDimensionSurcharge,
     DrawerLineItem,
     DefaultDrawerSettings
 )
@@ -40,7 +41,8 @@ __all__ = [
     'MiscellaneousDoorSettings',
     'DrawerWoodStock',
     'DrawerBottomSize',
-    'DrawerPricing', 
+    'DrawerPricing',
+    'DrawerDimensionSurcharge',
     'DrawerLineItem',
     'DefaultDrawerSettings',
     'GenericLineItem'

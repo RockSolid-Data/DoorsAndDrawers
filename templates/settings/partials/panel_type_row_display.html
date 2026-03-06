@@ -1,5 +1,6 @@
 <tr id="panel-type-row-{{ type.id }}" class="hover:bg-gray-50 transition-colors">
     <td class="px-5 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{{ type.name }}</td>
+    <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-600">${{ type.design_charge|floatformat:2 }}</td>
     <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-600">${{ type.surcharge_width|floatformat:2 }}</td>
     <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-600">${{ type.surcharge_height|floatformat:2 }}</td>
     <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-600">{{ type.surcharge_percent|floatformat:2 }}%</td>

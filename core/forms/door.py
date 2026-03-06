@@ -31,21 +31,21 @@ class DoorForm(ModelForm):
     )
     
     width = forms.DecimalField(
-        min_value=0.01,
+        min_value=0.001,
         max_digits=10,
-        decimal_places=2,
+        decimal_places=3,
         widget=forms.NumberInput(attrs={
-            'step': '0.01',
+            'step': '0.001',
             'class': 'block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
         })
     )
     
     height = forms.DecimalField(
-        min_value=0.01,
+        min_value=0.001,
         max_digits=10,
-        decimal_places=2,
+        decimal_places=3,
         widget=forms.NumberInput(attrs={
-            'step': '0.01',
+            'step': '0.001',
             'class': 'block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
         })
     )

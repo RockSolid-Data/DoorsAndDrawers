@@ -36,9 +36,6 @@ def create_drawer_defaults():
 
     # Create with sensible default values
     drawer_defaults = DefaultDrawerSettings.objects.create(
-        surcharge_width=Decimal('24.00'),
-        surcharge_depth=Decimal('24.00'),
-        surcharge_percent=Decimal('15.00'),
         finish_charge=Decimal('11.00'),
         undermount_charge=Decimal('2.50'),
         ends_cutting_adjustment=Decimal('0.000'),

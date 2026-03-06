@@ -23,6 +23,11 @@
                     <input type="checkbox" name="arch" id="arch-add" class="rounded text-indigo-600">
                     <label for="arch-add" class="text-sm text-gray-600">Arch</label>
                 </div>
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">Price</label>
+                    <input type="number" name="price" step="0.01" placeholder="0.00" class="block w-full text-sm rounded-lg px-3 py-2">
+                    {% if errors.price %}<p class="text-xs text-red-600 mt-1">{{ errors.price.0 }}</p>{% endif %}
+                </div>
             </div>
             <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 flex justify-end gap-2">
                 <button type="button" onclick="closeModal()"

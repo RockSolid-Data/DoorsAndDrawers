@@ -20,6 +20,8 @@ from ..views.settings import (
     show_drawer_woodstock_add, add_drawer_woodstock, delete_drawer_woodstock, confirm_delete_drawer_woodstock,
     show_drawer_bottom_add, add_drawer_bottom, delete_drawer_bottom, confirm_delete_drawer_bottom,
     show_drawer_pricing_add, add_drawer_pricing, delete_drawer_pricing, confirm_delete_drawer_pricing,
+    edit_drawer_dim_surcharge, get_drawer_dim_surcharge, update_drawer_dim_surcharge,
+    show_drawer_dim_surcharge_add, add_drawer_dim_surcharge, delete_drawer_dim_surcharge, confirm_delete_drawer_dim_surcharge,
     edit_drawer_defaults, get_drawer_defaults, update_drawer_defaults,
     edit_misc_settings, get_misc_settings, update_misc_settings
 )
@@ -72,6 +74,15 @@ urlpatterns = [
     path('drawers/pricing/<int:pricing_id>/confirm-delete/', confirm_delete_drawer_pricing, name='confirm_delete_drawer_pricing'),
     path('drawers/pricing/add/show/', show_drawer_pricing_add, name='show_drawer_pricing_add'),
     path('drawers/pricing/add/', add_drawer_pricing, name='add_drawer_pricing'),
+
+    # Drawer Dimension Surcharge
+    path('drawers/dim-surcharge/<int:surcharge_id>/edit/', edit_drawer_dim_surcharge, name='edit_drawer_dim_surcharge'),
+    path('drawers/dim-surcharge/<int:surcharge_id>/', get_drawer_dim_surcharge, name='get_drawer_dim_surcharge'),
+    path('drawers/dim-surcharge/<int:surcharge_id>/update/', update_drawer_dim_surcharge, name='update_drawer_dim_surcharge'),
+    path('drawers/dim-surcharge/<int:surcharge_id>/delete/', delete_drawer_dim_surcharge, name='delete_drawer_dim_surcharge'),
+    path('drawers/dim-surcharge/<int:surcharge_id>/confirm-delete/', confirm_delete_drawer_dim_surcharge, name='confirm_delete_drawer_dim_surcharge'),
+    path('drawers/dim-surcharge/add/show/', show_drawer_dim_surcharge_add, name='show_drawer_dim_surcharge_add'),
+    path('drawers/dim-surcharge/add/', add_drawer_dim_surcharge, name='add_drawer_dim_surcharge'),
 
     # Door Design
     path('doors/designs/<int:design_id>/edit/', edit_door_design, name='edit_door_design'),

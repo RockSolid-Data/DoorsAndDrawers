@@ -4,6 +4,36 @@ from ..models.drawer import DrawerLineItem
 class DrawerForm(forms.ModelForm):
     """Form for creating and editing drawers"""
     
+    width = forms.DecimalField(
+        min_value=0.001,
+        max_digits=6,
+        decimal_places=3,
+        widget=forms.NumberInput(attrs={
+            'step': '0.001',
+            'class': 'form-control'
+        })
+    )
+    
+    height = forms.DecimalField(
+        min_value=0.001,
+        max_digits=6,
+        decimal_places=3,
+        widget=forms.NumberInput(attrs={
+            'step': '0.001',
+            'class': 'form-control'
+        })
+    )
+    
+    depth = forms.DecimalField(
+        min_value=0.001,
+        max_digits=6,
+        decimal_places=3,
+        widget=forms.NumberInput(attrs={
+            'step': '0.001',
+            'class': 'form-control'
+        })
+    )
+    
     class Meta:
         model = DrawerLineItem
         fields = [

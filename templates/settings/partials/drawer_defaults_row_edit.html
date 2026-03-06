@@ -15,27 +15,6 @@
             {% csrf_token %}
             <div class="px-5 py-5 space-y-5">
                 <div>
-                    <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Surcharges</h4>
-                    <div class="grid grid-cols-3 gap-3">
-                        <div>
-                            <label for="id_surcharge_width" class="block text-sm text-gray-600 mb-1">Width</label>
-                            <input type="number" name="surcharge_width" id="id_surcharge_width" step="0.01" min="0" value="{{ defaults.surcharge_width }}"
-                                   class="w-full text-sm px-3 py-2 rounded-lg">
-                        </div>
-                        <div>
-                            <label for="id_surcharge_depth" class="block text-sm text-gray-600 mb-1">Depth</label>
-                            <input type="number" name="surcharge_depth" id="id_surcharge_depth" step="0.01" min="0" value="{{ defaults.surcharge_depth }}"
-                                   class="w-full text-sm px-3 py-2 rounded-lg">
-                        </div>
-                        <div>
-                            <label for="id_surcharge_percent" class="block text-sm text-gray-600 mb-1">Percent</label>
-                            <input type="number" name="surcharge_percent" id="id_surcharge_percent" step="0.01" min="0" value="{{ defaults.surcharge_percent }}"
-                                   class="w-full text-sm px-3 py-2 rounded-lg">
-                        </div>
-                    </div>
-                </div>
-
-                <div>
                     <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Charges</h4>
                     <div class="grid grid-cols-2 gap-3">
                         <div>

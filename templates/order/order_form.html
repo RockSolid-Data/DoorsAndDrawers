@@ -207,7 +207,7 @@
 
 <!-- ===== MODAL: Add Door ===== -->
 <div id="door-modal" class="modal-overlay" onclick="if(event.target===this)closeItemModal('door')">
-    <div class="modal-card">
+    <div class="modal-card" style="max-width:680px">
         <div class="flex items-center justify-between px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-indigo-600 to-indigo-500 rounded-t-xl">
             <h3 class="text-sm font-semibold text-white uppercase tracking-wide">Add Door</h3>
             <button type="button" onclick="closeItemModal('door')" class="text-white/80 hover:text-white">
@@ -227,7 +227,7 @@
 
 <!-- ===== MODAL: Add Drawer ===== -->
 <div id="drawer-modal" class="modal-overlay" onclick="if(event.target===this)closeItemModal('drawer')">
-    <div class="modal-card">
+    <div class="modal-card" style="max-width:680px">
         <div class="flex items-center justify-between px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-emerald-600 to-emerald-500 rounded-t-xl">
             <h3 class="text-sm font-semibold text-white uppercase tracking-wide">Add Drawer</h3>
             <button type="button" onclick="closeItemModal('drawer')" class="text-white/80 hover:text-white">
@@ -430,7 +430,27 @@ function clearEditState(type) {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         ['door', 'drawer', 'other'].forEach(function(t) { closeItemModal(t); });
+        return;
     }
+
+    // Rail field shortcuts (only when door modal is open)
+    const doorModal = document.getElementById('door-modal');
+    if (!doorModal || !doorModal.classList.contains('active')) return;
+
+    const active = document.activeElement;
+    if (active && (active.tagName === 'TEXTAREA' ||
+        (active.tagName === 'INPUT' && active.type === 'text') ||
+        (active.tagName === 'SELECT'))) return;
+
+    const railMap = { 'a': 'rail_top', 's': 'rail_bottom', 'd': 'rail_right', 'f': 'rail_left' };
+    const fieldName = railMap[e.key.toLowerCase()];
+    if (!fieldName) return;
+
+    e.preventDefault();
+    const body = document.getElementById('door-modal-body');
+    if (!body) return;
+    const field = body.querySelector('[name="' + fieldName + '"]');
+    if (field) { field.focus(); field.select(); }
 });
 
 // ── Enter-key navigation ───────────────────────────────────
@@ -461,7 +481,7 @@ function focusFirstDimension(type) {
     setTimeout(function() {
         const body = document.getElementById(type + '-modal-body');
         if (!body) return;
-        const first = body.querySelector('[data-enter-order="1"]');
+        const first = body.querySelector('[data-first-dimension]') || body.querySelector('[data-enter-order="1"]');
         if (first) { first.focus(); first.select(); }
     }, 100);
 }
@@ -662,13 +682,16 @@ function updateOrderCalculations(defaults) {
         surchargeDisplay.textContent = '-';
     }
 
+    // Shipping is based on pre-shipping subtotal (item total - discount + surcharge)
+    const preShippingSubtotal = itemTotal - discountValue + surchargeValue;
+
     let shippingValue = 0;
     const shippingDisplay = document.getElementById('shipping-display');
     if (defaults.shipping_type && defaults.shipping_value) {
         const value = parseFloat(defaults.shipping_value);
         const symbol = defaults.shipping_type === 'PERCENT' ? '%' : '$';
         shippingDisplay.textContent = symbol + defaults.shipping_value;
-        shippingValue = defaults.shipping_type === 'PERCENT' ? (itemTotal * value / 100) : value;
+        shippingValue = defaults.shipping_type === 'PERCENT' ? (preShippingSubtotal * value / 100) : value;
     } else {
         shippingDisplay.textContent = '-';
     }
@@ -714,8 +737,10 @@ function getSurchargeValue() {
 function getShippingValue() {
     const text = document.getElementById('shipping-display').textContent;
     if (text === '-') return 0;
+    // Shipping percentage is based on pre-shipping subtotal, not item total
     const itemTotal = parseFloat(document.getElementById('item-total').textContent.replace('$', '')) || 0;
-    if (text.startsWith('%')) return itemTotal * parseFloat(text.replace('%', '')) / 100;
+    const preShippingSubtotal = itemTotal - getDiscountValue() + getSurchargeValue();
+    if (text.startsWith('%')) return preShippingSubtotal * parseFloat(text.replace('%', '')) / 100;
     if (text.startsWith('$')) return parseFloat(text.replace('$', ''));
     return 0;
 }

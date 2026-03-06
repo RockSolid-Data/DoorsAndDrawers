@@ -19,6 +19,11 @@
                     <input type="text" name="name" placeholder="Raise name" class="block w-full text-sm rounded-lg px-3 py-2">
                     {% if errors.name %}<p class="text-xs text-red-600 mt-1">{{ errors.name.0 }}</p>{% endif %}
                 </div>
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">Surcharge</label>
+                    <input type="number" name="surcharge" step="0.01" placeholder="0.00" class="block w-full text-sm rounded-lg px-3 py-2">
+                    {% if errors.surcharge %}<p class="text-xs text-red-600 mt-1">{{ errors.surcharge.0 }}</p>{% endif %}
+                </div>
             </div>
             <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 flex justify-end gap-2">
                 <button type="button" onclick="closeModal()"

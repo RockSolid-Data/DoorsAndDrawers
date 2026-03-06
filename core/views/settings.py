@@ -61,17 +61,19 @@ def door_settings(request):
 
 
 def drawer_settings(request):
-    from ..models.drawer import DrawerWoodStock, DrawerBottomSize, DrawerPricing, DefaultDrawerSettings
+    from ..models.drawer import DrawerWoodStock, DrawerBottomSize, DrawerPricing, DrawerDimensionSurcharge, DefaultDrawerSettings
 
     wood_stocks = DrawerWoodStock.objects.all()
     bottom_sizes = DrawerBottomSize.objects.all()
     pricing = DrawerPricing.objects.all()
+    dim_surcharges = DrawerDimensionSurcharge.objects.all()
     drawer_defaults = DefaultDrawerSettings.objects.first()
 
     context = {
         'wood_stocks': wood_stocks,
         'bottom_sizes': bottom_sizes,
         'pricing': pricing,
+        'dim_surcharges': dim_surcharges,
         'drawer_defaults': drawer_defaults,
         'title': 'Drawer Settings'
     }
@@ -333,6 +335,14 @@ def update_door_design(request, design_id):
         design.arch = 'arch' in request.POST
 
         try:
+            design.price = Decimal(request.POST.get('price', '0'))
+        except (ValueError, TypeError):
+            return render(request, 'settings/partials/design_row_edit.html', {
+                'design': design,
+                'errors': {'price': ['Please enter a valid number']}
+            }, status=422)
+
+        try:
             design.full_clean()
             design.save()
         except ValidationError as e:
@@ -355,7 +365,13 @@ def show_door_design_add(request):
 
 def add_door_design(request):
     if request.method == 'POST':
-        design = Design(name=request.POST.get('name'), arch='arch' in request.POST)
+        try:
+            price = Decimal(request.POST.get('price', '0'))
+        except (ValueError, TypeError):
+            return render(request, 'settings/partials/door_design_row_add.html', {
+                'errors': {'price': ['Please enter a valid number']}
+            }, status=422)
+        design = Design(name=request.POST.get('name'), arch='arch' in request.POST, price=price)
 
         try:
             design.full_clean()
@@ -491,6 +507,14 @@ def update_panel_rise(request, rise_id):
         rise.name = request.POST.get('name')
 
         try:
+            rise.surcharge = Decimal(request.POST.get('surcharge', '0'))
+        except (ValueError, TypeError):
+            return render(request, 'settings/partials/panel_rise_row_edit.html', {
+                'rise': rise,
+                'errors': {'surcharge': ['Please enter a valid number']}
+            }, status=422)
+
+        try:
             rise.full_clean()
             rise.save()
         except ValidationError as e:
@@ -513,7 +537,13 @@ def show_panel_rise_add(request):
 
 def add_panel_rise(request):
     if request.method == 'POST':
-        rise = PanelRise(name=request.POST.get('name'))
+        try:
+            surcharge = Decimal(request.POST.get('surcharge', '0'))
+        except (ValueError, TypeError):
+            return render(request, 'settings/partials/panel_rise_row_add.html', {
+                'errors': {'surcharge': ['Please enter a valid number']}
+            }, status=422)
+        rise = PanelRise(name=request.POST.get('name'), surcharge=surcharge)
 
         try:
             rise.full_clean()
@@ -570,6 +600,7 @@ def update_panel_type(request, type_id):
         panel_type.name = request.POST.get('name')
 
         try:
+            panel_type.design_charge = Decimal(request.POST.get('design_charge', '0'))
             panel_type.minimum_sq_ft = Decimal(request.POST.get('minimum_sq_ft', '0'))
             panel_type.surcharge_width = Decimal(request.POST.get('surcharge_width', '0'))
             panel_type.surcharge_height = Decimal(request.POST.get('surcharge_height', '0'))
@@ -577,7 +608,7 @@ def update_panel_type(request, type_id):
         except (ValueError, TypeError):
             return render(request, 'settings/partials/panel_type_row_edit.html', {
                 'type': panel_type,
-                'errors': {'surcharge_width': ['Please enter valid numbers for all numeric fields']}
+                'errors': {'design_charge': ['Please enter valid numbers for all numeric fields']}
             }, status=422)
 
         panel_type.use_flat_panel_price = 'use_flat_panel_price' in request.POST
@@ -609,13 +640,14 @@ def add_panel_type(request):
         panel_type.name = request.POST.get('name')
 
         try:
+            panel_type.design_charge = Decimal(request.POST.get('design_charge', '0'))
             panel_type.minimum_sq_ft = Decimal(request.POST.get('minimum_sq_ft', '0'))
             panel_type.surcharge_width = Decimal(request.POST.get('surcharge_width', '0'))
             panel_type.surcharge_height = Decimal(request.POST.get('surcharge_height', '0'))
             panel_type.surcharge_percent = Decimal(request.POST.get('surcharge_percent', '0'))
         except (ValueError, TypeError):
             return render(request, 'settings/partials/panel_type_row_add.html', {
-                'errors': {'surcharge_width': ['Please enter valid numbers for all numeric fields']}
+                'errors': {'design_charge': ['Please enter valid numbers for all numeric fields']}
             }, status=422)
 
         panel_type.use_flat_panel_price = 'use_flat_panel_price' in request.POST
@@ -958,6 +990,108 @@ def delete_drawer_pricing(request, pricing_id):
     return redirect('drawer_settings')
 
 
+# ── Drawer Dimension Surcharge CRUD ───────────────────────────────────
+
+def edit_drawer_dim_surcharge(request, surcharge_id):
+    from ..models.drawer import DrawerDimensionSurcharge
+    surcharge = get_object_or_404(DrawerDimensionSurcharge, id=surcharge_id)
+    return render(request, 'settings/partials/drawer_dim_surcharge_row_edit.html', {'surcharge': surcharge})
+
+
+def get_drawer_dim_surcharge(request, surcharge_id):
+    from ..models.drawer import DrawerDimensionSurcharge
+    surcharge = get_object_or_404(DrawerDimensionSurcharge, id=surcharge_id)
+    return render(request, 'settings/partials/drawer_dim_surcharge_row_display.html', {'surcharge': surcharge})
+
+
+def update_drawer_dim_surcharge(request, surcharge_id):
+    from ..models.drawer import DrawerDimensionSurcharge
+    surcharge = get_object_or_404(DrawerDimensionSurcharge, id=surcharge_id)
+
+    if request.method == 'POST':
+        try:
+            surcharge.width = Decimal(request.POST.get('width', '0'))
+            surcharge.depth = Decimal(request.POST.get('depth', '0'))
+            surcharge.surcharge_percent = Decimal(request.POST.get('surcharge_percent', '0'))
+        except (ValueError, TypeError):
+            return render(request, 'settings/partials/drawer_dim_surcharge_row_edit.html', {
+                'surcharge': surcharge,
+                'errors': {'width': ['Please enter valid numbers for all fields']}
+            }, status=422)
+
+        try:
+            surcharge.full_clean()
+            surcharge.save()
+        except ValidationError as e:
+            return render(request, 'settings/partials/drawer_dim_surcharge_row_edit.html', {
+                'surcharge': surcharge, 'errors': e.message_dict
+            }, status=422)
+
+        response = render(request, 'settings/partials/drawer_dim_surcharge_row_display.html', {'surcharge': surcharge})
+        response['HX-Retarget'] = f'#drawer-dim-surcharge-row-{surcharge.id}'
+        response['HX-Reswap'] = 'outerHTML'
+        response['HX-Trigger-After-Swap'] = 'closeModal'
+        return response
+
+    return redirect('drawer_settings')
+
+
+def show_drawer_dim_surcharge_add(request):
+    return render(request, 'settings/partials/drawer_dim_surcharge_row_add.html')
+
+
+def add_drawer_dim_surcharge(request):
+    from ..models.drawer import DrawerDimensionSurcharge
+
+    if request.method == 'POST':
+        surcharge = DrawerDimensionSurcharge()
+        try:
+            surcharge.width = Decimal(request.POST.get('width', '0'))
+            surcharge.depth = Decimal(request.POST.get('depth', '0'))
+            surcharge.surcharge_percent = Decimal(request.POST.get('surcharge_percent', '0'))
+        except (ValueError, TypeError):
+            return render(request, 'settings/partials/drawer_dim_surcharge_row_add.html', {
+                'errors': {'width': ['Please enter valid numbers for all fields']}
+            }, status=422)
+
+        try:
+            surcharge.full_clean()
+            surcharge.save()
+        except ValidationError as e:
+            return render(request, 'settings/partials/drawer_dim_surcharge_row_add.html', {
+                'errors': e.message_dict
+            }, status=422)
+
+        html = _render_tbody(request, DrawerDimensionSurcharge.objects.all(),
+                             'settings/partials/drawer_dim_surcharge_row_display.html', 'surcharge',
+                             'settings/partials/drawer_dim_surcharge_add_button.html')
+        return _modal_success(request, html, '#drawer-dim-surcharges-tbody')
+
+    return redirect('drawer_settings')
+
+
+def confirm_delete_drawer_dim_surcharge(request, surcharge_id):
+    from ..models.drawer import DrawerDimensionSurcharge
+    surcharge = get_object_or_404(DrawerDimensionSurcharge, id=surcharge_id)
+    return _confirm_delete(request, 'Delete Dimension Surcharge',
+                           f'Are you sure you want to delete this surcharge tier ({surcharge.surcharge_percent}%)? This action cannot be undone.',
+                           reverse('delete_drawer_dim_surcharge', args=[surcharge_id]))
+
+
+def delete_drawer_dim_surcharge(request, surcharge_id):
+    from ..models.drawer import DrawerDimensionSurcharge
+    surcharge = get_object_or_404(DrawerDimensionSurcharge, id=surcharge_id)
+
+    if request.method == 'DELETE':
+        surcharge.delete()
+        html = _render_tbody(request, DrawerDimensionSurcharge.objects.all(),
+                             'settings/partials/drawer_dim_surcharge_row_display.html', 'surcharge',
+                             'settings/partials/drawer_dim_surcharge_add_button.html')
+        return _modal_success(request, html, '#drawer-dim-surcharges-tbody')
+
+    return redirect('drawer_settings')
+
+
 # ── Rail Defaults (edit only) ─────────────────────────────────────────
 
 def edit_rail_defaults(request):
@@ -1109,9 +1243,6 @@ def update_drawer_defaults(request):
         if not defaults:
             defaults = DefaultDrawerSettings.objects.create()
 
-        defaults.surcharge_width = request.POST.get('surcharge_width', 0.00)
-        defaults.surcharge_depth = request.POST.get('surcharge_depth', 0.00)
-        defaults.surcharge_percent = request.POST.get('surcharge_percent', 0.00)
         defaults.finish_charge = request.POST.get('finish_charge', 0.00)
         defaults.undermount_charge = request.POST.get('undermount_charge', 0.00)
         defaults.ends_cutting_adjustment = request.POST.get('ends_cutting_adjustment', 0.000)

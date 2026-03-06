@@ -126,9 +126,6 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS('  DefaultDrawerSettings: 0 created, 1 already existed'))
         else:
             obj = DefaultDrawerSettings.objects.create(
-                surcharge_width=Decimal('24.000'),
-                surcharge_depth=Decimal('24.000'),
-                surcharge_percent=Decimal('15.00'),
                 finish_charge=Decimal('9.00'),
                 undermount_charge=Decimal('2.50'),
                 ends_cutting_adjustment=Decimal('0.000'),

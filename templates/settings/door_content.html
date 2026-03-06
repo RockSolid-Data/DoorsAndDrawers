@@ -56,6 +56,7 @@
                 <thead>
                     <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
                         <th class="px-5 py-2">Raise Name</th>
+                        <th class="px-5 py-2">Surcharge</th>
                         <th class="px-5 py-2 text-right">Actions</th>
                     </tr>
                 </thead>
@@ -64,7 +65,7 @@
                         {% include 'settings/partials/panel_rise_row_display.html' with rise=rise %}
                     {% empty %}
                     <tr>
-                        <td colspan="2" class="px-5 py-4 text-sm text-gray-400 text-center">No panel raises</td>
+                        <td colspan="3" class="px-5 py-4 text-sm text-gray-400 text-center">No panel raises</td>
                     </tr>
                     {% endfor %}
                     {% include 'settings/partials/panel_rise_add_button.html' %}
@@ -81,6 +82,7 @@
                     <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
                         <th class="px-5 py-2">Design</th>
                         <th class="px-5 py-2">Arch</th>
+                        <th class="px-5 py-2">Price</th>
                         <th class="px-5 py-2 text-right">Actions</th>
                     </tr>
                 </thead>
@@ -89,7 +91,7 @@
                         {% include 'settings/partials/design_row_display.html' %}
                     {% empty %}
                     <tr>
-                        <td colspan="3" class="px-5 py-4 text-sm text-gray-400 text-center">No door designs</td>
+                        <td colspan="4" class="px-5 py-4 text-sm text-gray-400 text-center">No door designs</td>
                     </tr>
                     {% endfor %}
                     {% include 'settings/partials/door_design_add_button.html' %}
@@ -166,6 +168,7 @@
             <thead>
                 <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
                     <th class="px-5 py-2">Panel Type</th>
+                    <th class="px-5 py-2">Design Charge</th>
                     <th class="px-5 py-2">Surcharge W</th>
                     <th class="px-5 py-2">Surcharge H</th>
                     <th class="px-5 py-2">Surcharge %</th>
@@ -179,7 +182,7 @@
                     {% include 'settings/partials/panel_type_row_display.html' with type=panel_type %}
                 {% empty %}
                 <tr>
-                    <td colspan="7" class="px-5 py-4 text-sm text-gray-400 text-center">No panel types available</td>
+                    <td colspan="8" class="px-5 py-4 text-sm text-gray-400 text-center">No panel types available</td>
                 </tr>
                 {% endfor %}
                 {% include 'settings/partials/panel_type_add_button.html' %}

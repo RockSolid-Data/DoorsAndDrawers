@@ -3,7 +3,7 @@
      onclick="if(event.target===this)closeModal()">
     <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
         <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-            <h3 class="text-base font-semibold text-gray-900">Edit Panel Raise</h3>
+            <h3 class="text-base font-semibold text-gray-900">Add Dimension Surcharge</h3>
             <button type="button" onclick="closeModal()"
                     class="text-gray-400 hover:text-gray-600 transition-colors rounded-lg p-1 hover:bg-gray-100">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -11,18 +11,23 @@
                 </svg>
             </button>
         </div>
-        <form hx-post="{% url 'update_panel_rise' rise.id %}" hx-target="#modal">
+        <form hx-post="{% url 'add_drawer_dim_surcharge' %}" hx-target="#modal">
             {% csrf_token %}
             <div class="px-5 py-5 space-y-4">
                 <div>
-                    <label class="block text-sm text-gray-600 mb-1">Name</label>
-                    <input type="text" name="name" value="{{ rise.name }}" class="block w-full text-sm rounded-lg px-3 py-2">
-                    {% if errors.name %}<p class="text-xs text-red-600 mt-1">{{ errors.name.0 }}</p>{% endif %}
+                    <label class="block text-sm text-gray-600 mb-1">Width Threshold</label>
+                    <input type="number" name="width" step="0.01" min="0" placeholder="0.00" class="block w-full text-sm rounded-lg px-3 py-2">
+                    {% if errors.width %}<p class="text-xs text-red-600 mt-1">{{ errors.width.0 }}</p>{% endif %}
                 </div>
                 <div>
-                    <label class="block text-sm text-gray-600 mb-1">Surcharge</label>
-                    <input type="number" name="surcharge" value="{{ rise.surcharge }}" step="0.01" class="block w-full text-sm rounded-lg px-3 py-2">
-                    {% if errors.surcharge %}<p class="text-xs text-red-600 mt-1">{{ errors.surcharge.0 }}</p>{% endif %}
+                    <label class="block text-sm text-gray-600 mb-1">Depth Threshold</label>
+                    <input type="number" name="depth" step="0.01" min="0" placeholder="0.00" class="block w-full text-sm rounded-lg px-3 py-2">
+                    {% if errors.depth %}<p class="text-xs text-red-600 mt-1">{{ errors.depth.0 }}</p>{% endif %}
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">Surcharge %</label>
+                    <input type="number" name="surcharge_percent" step="0.01" min="0" placeholder="0.00" class="block w-full text-sm rounded-lg px-3 py-2">
+                    {% if errors.surcharge_percent %}<p class="text-xs text-red-600 mt-1">{{ errors.surcharge_percent.0 }}</p>{% endif %}
                 </div>
             </div>
             <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 flex justify-end gap-2">
